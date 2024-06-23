@@ -1,57 +1,109 @@
-/**
- Skeleton code of assignment 2 (For reference only)
-	   
- The time calculation could be confusing, check the exmaple of gettimeofday on tutorial for more detail.
- */
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <sys/time.h>
 
-struct customer_info{ /// use this struct to record the customer information read from customers.txt
-    int user_id;
-	int class_type
+#define NQUEUE 2
+#define NClerks 4
+#define NCustomers 10
+#define TRUE 1
+#define FALSE 0
+
+/* Function Declarations */
+void *customer_entry(void *cus_info);
+void *clerk_entry(void *clerkNum);
+
+/* Global Variables */
+struct customer_info{
+	int user_id;
+	int class_type;
 	int service_time;
 	int arrival_time;
 };
 
-/* global variables */
- 
-struct timeval init_time; // use this variable to record the simulation start time; No need to use mutex_lock when reading this variable since the value would not be changed by thread once the initial time was set.
-double overall_waiting_time; //A global variable to add up the overall waiting time for all customers, every customer add their own waiting time to this variable, mutex_lock is necessary.
-int queue_length[NQUEUE];// variable stores the real-time queue length information; mutex_lock needed
+struct timeval init_time;
+double overall_waiting_time = 0;
+int queue_length[NQUEUE] = {0, 0};
+int queue_status[NQUEUE] = {0, 0};
+int winner_selected[NQUEUE] = {FALSE, FALSE};
 
-int queue_status[NQUEUE]; // variable to record the status of a queue, the value could be idle (not using by any clerk) or the clerk id (1 ~ 4), indicating that the corresponding clerk is now signaling this queue.
-int winner_selected[NQUEUE] = FALSE; // variable to record if the first customer in a queue has been successfully selected and left the queue.
+pthread_mutex_t queue_mutex[NQUEUE];
+pthread_cond_t queue_cond[NQUEUE];
+pthread_mutex_t clerk_mutex[NCLERKS];
+pthread_cond_t clerk_cond[NCLERKS];
 
-/* Other global variable may include: 
- 1. condition_variables (and the corresponding mutex_lock) to represent each queue; 
- 2. condition_variables to represent clerks
- 3. others.. depend on your design
- */
+struct customer_info customer_list[NCUSTOMERS];
+pthread_t customer_threads[NCUSTOMERS];
+pthread_t clerk_threads[NCLERKS];
+
+double get_current_time() {
+    struct timeval curr_time;
+    gettimeofday(&curr_time, NULL);
+    return (curr_time.tv_sec - init_time.tv_sec) + (curr_time.tv_usec - init_time.tv_usec) / 1000000.0;
+}
+
+void enQueue(int queue_id) {
+    queue_length[queue_id]++;
+}
+
+void deQueue(int queue_id) {
+    queue_length[queue_id]--;
+}
+
 
 int main() {
+	// Initialize all the condition variables and thread locks that will be used
+	FILE *file;
+    char line[256];
+    int i;
 
-	// initialize all the condition variable and thread lock will be used
-	
+    // Initialize mutexes and condition variables
+    for (i = 0; i < NQUEUE; i++) {
+        pthread_mutex_init(&queue_mutex[i], NULL);
+        pthread_cond_init(&queue_cond[i], NULL);
+    }
+    for (i = 0; i < NCLERKS; i++) {
+        pthread_mutex_init(&clerk_mutex[i], NULL);
+        pthread_cond_init(&clerk_cond[i], NULL);
+    }
+
+	gettimeofday(&init_time, NULL);
 	/** Read customer information from txt file and store them in the structure you created 
-		
 		1. Allocate memory(array, link list etc.) to store the customer information.
 		2. File operation: fopen fread getline/gets/fread ..., store information in data structure you created
-
 	*/
-	//create clerk thread (optional)
-	for(i = 0, i < NClerks; i++){ // number of clerks
-		pthread_create(&clerkId[i], NULL, clerk_entry, (void *)&clerk_info[i]); // clerk_info: passing the clerk information (e.g., clerk ID) to clerk thread
+	file = fopen("customer_info.txt", "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    i = 0;
+    while (fgets(line, sizeof(line), file) != NULL && i < NCUSTOMERS) {
+        sscanf(line, "%d %d %d %d", &customer_list[i].user_id, &customer_list[i].class_type, &customer_list[i].service_time, &customer_list[i].arrival_time);
+        i++;
+    }
+    fclose(file);
+	// Create clerk threads (optional)
+	pthread_t clerkId[NClerks];
+	for(int i = 0; i < NClerks; i++){
+		pthread_create(&clerkId[i], NULL, clerk_entry, (void *)&clerk_info[i]);
 	}
-	
-	//create customer thread
-	for(i = 0, i < NCustomers; i++){ // number of customers
-		pthread_create(&customId[i], NULL, customer_entry, (void *)&custom_info[i]); //custom_info: passing the customer information (e.g., customer ID, arrival time, service time, etc.) to customer thread
+
+	// Create customer threads
+	pthread_t customId[NCustomers];
+	for(int i = 0; i < NCustomers; i++){
+		pthread_create(&customId[i], NULL, customer_entry, (void *)&custom_info[i]);
 	}
-	// wait for all customer threads to terminate
-	forEach customer thread{
-		pthread_join(...);
+
+	// Wait for all customer threads to terminate
+	for(int i = 0; i < NCustomers; i++){
+		pthread_join(customId[i], NULL);
 	}
-	// destroy mutex & condition variable (optional)
-	
-	// calculate the average waiting time of all customers
+
+	// Destroy mutex and condition variables (optional)
+
+	// Calculate the average waiting time of all customers
 	return 0;
 }
 
