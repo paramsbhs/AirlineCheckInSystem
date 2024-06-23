@@ -72,7 +72,7 @@ int main() {
     gettimeofday(&init_time, NULL);
 
     // Read customer information from txt file and store them in customer_list
-    file = fopen("sample_input.txt", "r");
+    file = fopen("Sample_input.txt", "r");
     if (file == NULL) {
         perror("Error opening file");
         return 1;
