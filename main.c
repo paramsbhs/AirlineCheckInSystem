@@ -2,29 +2,32 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <sys/time.h>
+#include <unistd.h>
+#include <string.h>
 
 #define NQUEUE 2
-#define NClerks 4
-#define NCustomers 10
+#define NCLERKS 4
+#define NCUSTOMERS 10
 #define TRUE 1
 #define FALSE 0
+#define IDLE 0
 
 /* Function Declarations */
 void *customer_entry(void *cus_info);
 void *clerk_entry(void *clerkNum);
 
 /* Global Variables */
-struct customer_info{
-	int user_id;
-	int class_type;
-	int service_time;
-	int arrival_time;
+struct customer_info {
+    int user_id;
+    int class_type;
+    int service_time;
+    int arrival_time;
 };
 
 struct timeval init_time;
 double overall_waiting_time = 0;
 int queue_length[NQUEUE] = {0, 0};
-int queue_status[NQUEUE] = {0, 0};
+int queue_status[NQUEUE] = {IDLE, IDLE};
 int winner_selected[NQUEUE] = {FALSE, FALSE};
 
 pthread_mutex_t queue_mutex[NQUEUE];
@@ -50,10 +53,8 @@ void deQueue(int queue_id) {
     queue_length[queue_id]--;
 }
 
-
 int main() {
-	// Initialize all the condition variables and thread locks that will be used
-	FILE *file;
+    FILE *file;
     char line[256];
     int i;
 
@@ -67,12 +68,11 @@ int main() {
         pthread_cond_init(&clerk_cond[i], NULL);
     }
 
-	gettimeofday(&init_time, NULL);
-	/** Read customer information from txt file and store them in the structure you created 
-		1. Allocate memory(array, link list etc.) to store the customer information.
-		2. File operation: fopen fread getline/gets/fread ..., store information in data structure you created
-	*/
-	file = fopen("customer_info.txt", "r");
+    // Initialize the initial time
+    gettimeofday(&init_time, NULL);
+
+    // Read customer information from txt file and store them in customer_list
+    file = fopen("customer_info.txt", "r");
     if (file == NULL) {
         perror("Error opening file");
         return 1;
@@ -84,105 +84,99 @@ int main() {
         i++;
     }
     fclose(file);
-	// Create clerk threads (optional)
-	pthread_t clerkId[NClerks];
-	for(int i = 0; i < NClerks; i++){
-		pthread_create(&clerkId[i], NULL, clerk_entry, (void *)&clerk_info[i]);
-	}
 
-	// Create customer threads
-	pthread_t customId[NCustomers];
-	for(int i = 0; i < NCustomers; i++){
-		pthread_create(&customId[i], NULL, customer_entry, (void *)&custom_info[i]);
-	}
+    // Create clerk threads
+    for (i = 0; i < NCLERKS; i++) {
+        pthread_create(&clerk_threads[i], NULL, clerk_entry, (void *)(long)i);
+    }
 
-	// Wait for all customer threads to terminate
-	for(int i = 0; i < NCustomers; i++){
-		pthread_join(customId[i], NULL);
-	}
+    // Create customer threads
+    for (i = 0; i < NCUSTOMERS; i++) {
+        pthread_create(&customer_threads[i], NULL, customer_entry, (void *)&customer_list[i]);
+    }
 
-	// Destroy mutex and condition variables (optional)
+    // Wait for all customer threads to terminate
+    for (i = 0; i < NCUSTOMERS; i++) {
+        pthread_join(customer_threads[i], NULL);
+    }
 
-	// Calculate the average waiting time of all customers
-	return 0;
+    // Destroy mutexes and condition variables
+    for (i = 0; i < NQUEUE; i++) {
+        pthread_mutex_destroy(&queue_mutex[i]);
+        pthread_cond_destroy(&queue_cond[i]);
+    }
+    for (i = 0; i < NCLERKS; i++) {
+        pthread_mutex_destroy(&clerk_mutex[i]);
+        pthread_cond_destroy(&clerk_cond[i]);
+    }
+
+    // Calculate and print the average waiting time of all customers
+    printf("Average waiting time: %.2f seconds\n", overall_waiting_time / NCUSTOMERS);
+
+    return 0;
 }
 
-// function entry for customer threads
+// Function entry for customer threads
+void *customer_entry(void *cus_info) {
+    struct customer_info *p_myInfo = (struct customer_info *)cus_info;
+    usleep(p_myInfo->arrival_time * 1000);
 
-void * customer_entry(void * cus_info){
-	
-	struct customer_info * p_myInfo = (struct info_node *) cus_info;
-	
-	usleep(/* the arrival time of this customer */);
-	
-	fprintf(stdout, "A customer arrives: customer ID %2d. \n", p_myInfo->user_id);
-	
-	/* Enqueue operation: get into either business queue or economy queue by using p_myInfo->class_type*/
-	
-	
-	pthread_mutex_lock(/* mutexLock of selected queue */); 
-	{
-		fprintf(stdout, "A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", /*...*/);
+    int cur_queue = p_myInfo->class_type;
+    printf("A customer arrives: customer ID %2d. \n", p_myInfo->user_id);
 
-		enQueue();
-		queue_enter_time = getCurSystemTime();
-		queue_length[cur_queue]++;
-		
-		while (TRUE) {
-			pthread_cond_wait(/* cond_var of selected queue */, /* mutexLock of selected queue */);
-			if (I_am_Head_of_the_Queue && !winner_selected[cur_queue]) {
-				deQueue();
-				queue_length[cur_queue]--;
-				winner_selected[cur_queue] = TRUE; // update the winner_selected variable to indicate that the first customer has been selected from the queue
-				break;
-			}
-		}
-			
-	}
-	pthread_mutex_unlock(/*mutexLock of selected queue*/); //unlock mutex_lock such that other customers can enter into the queue
-	
-	/* Try to figure out which clerk awoken me, because you need to print the clerk Id information */
-	usleep(10); // Add a usleep here to make sure that all the other waiting threads have already got back to call pthread_cond_wait. 10 us will not harm your simulation time.
-	clerk_woke_me_up = queue_status[cur_queue];
-	queue_status[cur_queue] = IDLE;
-	
-	/* get the current machine time; updates the overall_waiting_time*/
-	
-	fprintf(stdout, "A clerk starts serving a customer: start time %.2f, the customer ID %2d, the clerk ID %1d. \n", /*...*/);
-	
-	usleep(/* as long as the service time of this customer */);
-	
-	/* get the current machine time; */
-	fprintf(stdout, "A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n", /* ... */);\
-	
-	pthread_cond_signal(/* convar of the clerk signaled me */); // Notify the clerk that service is finished, it can serve another customer
-	
-	pthread_exit(NULL);
-	
-	return NULL;
+    pthread_mutex_lock(&queue_mutex[cur_queue]);
+    {
+        enQueue(cur_queue);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", cur_queue, queue_length[cur_queue]);
+        double queue_enter_time = get_current_time();
+
+        while (TRUE) {
+            pthread_cond_wait(&queue_cond[cur_queue], &queue_mutex[cur_queue]);
+            if (queue_length[cur_queue] > 0 && !winner_selected[cur_queue]) {
+                deQueue(cur_queue);
+                winner_selected[cur_queue] = TRUE;
+                break;
+            }
+        }
+    }
+    pthread_mutex_unlock(&queue_mutex[cur_queue]);
+
+    int clerk_woke_me_up = queue_status[cur_queue];
+    queue_status[cur_queue] = IDLE;
+
+    double start_time = get_current_time();
+    overall_waiting_time += (start_time - queue_enter_time);
+    printf("A clerk starts serving a customer: start time %.2f, the customer ID %2d, the clerk ID %1d. \n", start_time, p_myInfo->user_id, clerk_woke_me_up);
+
+    usleep(p_myInfo->service_time * 1000);
+
+    double end_time = get_current_time();
+    printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n", end_time, p_myInfo->user_id, clerk_woke_me_up);
+
+    pthread_cond_signal(&clerk_cond[clerk_woke_me_up]);
+    pthread_exit(NULL);
+    return NULL;
 }
 
-// function entry for clerk threads
-void *clerk_entry(void * clerkNum){
-	
-	while(TRUE){
-		
-		/* selected_queue_ID = Select the queue based on the priority and current customers number */
-		
-		pthread_mutex_lock(/* mutexLock of the selected queue */);
-		
-		queue_status[selected_queue_ID] = clerkID; // The current clerk (clerkID) is signaling this queue
-		
-		pthread_cond_broadcast(/* cond_var of the selected queue */); // Awake the customer (the one enter into the queue first) from the selected queue
-		
-		winner_selected[selected_queue_ID] = FALSE; // set the initial value as the customer has not selected from the queue.
-		
-		pthread_mutex_unlock(/* mutexLock of the selected queue */);
-		
-		pthread_cond_wait(/* convar of the current clerk */); // wait for the customer to finish its service
-	}
-	
-	pthread_exit(NULL);
-	
-	return NULL;
+// Function entry for clerk threads
+void *clerk_entry(void *clerkNum) {
+    int clerkID = (long)clerkNum;
+
+    while (TRUE) {
+        int selected_queue_ID = 1;
+        pthread_mutex_lock(&queue_mutex[selected_queue_ID]);
+        if (queue_length[0] > 0) {
+            selected_queue_ID = 0;
+        }
+
+        queue_status[selected_queue_ID] = clerkID;
+        pthread_cond_broadcast(&queue_cond[selected_queue_ID]);
+        winner_selected[selected_queue_ID] = FALSE;
+        pthread_mutex_unlock(&queue_mutex[selected_queue_ID]);
+
+        pthread_cond_wait(&clerk_cond[clerkID], &clerk_mutex[clerkID]);
+    }
+
+    pthread_exit(NULL);
+    return NULL;
 }
