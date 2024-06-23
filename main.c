@@ -120,8 +120,8 @@ int main() {
 void *customer_entry(void *cus_info) {
     struct customer_info *p_myInfo = (struct customer_info *)cus_info;
     usleep(p_myInfo->arrival_time * 1000);
-
     int cur_queue = p_myInfo->class_type;
+	double queue_enter_time;
     printf("A customer arrives: customer ID %2d. \n", p_myInfo->user_id);
 
     pthread_mutex_lock(&queue_mutex[cur_queue]);
@@ -143,7 +143,7 @@ void *customer_entry(void *cus_info) {
 
     int clerk_woke_me_up = queue_status[cur_queue];
     queue_status[cur_queue] = IDLE;
-
+	
     double start_time = get_current_time();
     overall_waiting_time += (start_time - queue_enter_time);
     printf("A clerk starts serving a customer: start time %.2f, the customer ID %2d, the clerk ID %1d. \n", start_time, p_myInfo->user_id, clerk_woke_me_up);
