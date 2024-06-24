@@ -1,6 +1,13 @@
 #ifndef _LINKEDLIST_H_
 #define _LINKEDLIST_H_
 
+struct Customer {
+    int user_id;
+    int class_type;
+    int service_time;
+    int arrival_time;
+};
+
 struct Node {
     int customerData;
     struct Node* next;

@@ -20,27 +20,21 @@ struct Customer {
     int arrival_time;
 };
 
-void inputFile(const char *filename, struct Customer **customers, int *totalCustomers) {
+void inputFile(const char *filename, struct Customer **customers, int *size) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Failed to open file");
         exit(EXIT_FAILURE);
     }
-    fscanf(file, "%d\n", totalCustomers);
-    *customers = (struct Customer *)malloc((*totalCustomers) * sizeof(struct Customer));
+    fscanf(file, "%d\n", size);
+    *customers = (struct Customer *)malloc((*size) * sizeof(struct Customer));
     if (*customers == NULL) {
         perror("Failed to allocate memory");
         exit(EXIT_FAILURE);
     }
-
-    for (int i = 0; i < *totalCustomers; i++) {
-        fscanf(file, "%d:%d,%d,%d\n",
-               &(*customers)[i].user_id,
-               &(*customers)[i].class_type,
-               &(*customers)[i].arrival_time,
-               &(*customers)[i].service_time);
+    for (int i = 0; i < *size; i++) {
+        fscanf(file, "%d:%d,%d,%d\n",&(*customers)[i].user_id,&(*customers)[i].class_type,&(*customers)[i].arrival_time,&(*customers)[i].service_time);
     }
-
     fclose(file);
 }
 
@@ -50,15 +44,17 @@ int main(int argc, char *argv[]){
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return EXIT_FAILURE;
     }
-    struct Customer *customers;
-    int totalCustomers;
+    struct Queue* CustomerQueue = createQueue();
+    int size;
 
-    inputFile(argv[1], &customers, &totalCustomers);
-    for (int i = 0; i < totalCustomers; i++) {
-        printf("Customer %d\n", customers[i].user_id);
-        printf("  Class: %s\n", customers[i].class_type == 1 ? "Business" : "Economy");
-        printf("  Arrival Time: %d (tenths of a second)\n", customers[i].arrival_time);
-        printf("  Service Time: %d (tenths of a second)\n", customers[i].service_time);
+    inputFile(argv[1], CustomerQueue, &size);
+    displayQueue(CustomerQueue);
+        while (!isQueueEmpty(queue)) {
+        struct Customer customer = dequeue(queue);
+        // Process customer (for now, just print the details)
+        printf("Processing Customer ID: %d, Class: %s, Arrival Time: %d (tenths of a second), Service Time: %d (tenths of a second)\n",
+               customer.user_id, customer.class_type == 1 ? "Business" : "Economy", customer.arrival_time, customer.service_time);
     }
+    free(queue);
     return 0;
 }
