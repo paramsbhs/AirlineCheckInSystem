@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <string.h>
-#include linked_list.h
+#include "linked_list.h"
 
 #define NQUEUE 2
 #define NCLERKS 4

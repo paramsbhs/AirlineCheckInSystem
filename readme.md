@@ -7,4 +7,4 @@ Begin by opening the terminal with the file location set to the location where a
 make
 
 After running make, it should compile the makefile and the source code, which after you can run 
-./main
+./AirlineCheckInSystem
