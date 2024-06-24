@@ -35,17 +35,21 @@ void inputFile(const char *filename, struct Customer **customers, int *totalCust
 
     for (int i = 0; i < *totalCustomers; i++) {
         fscanf(file, "%d:%d,%d,%d\n",
-               &(*customers)[i].id,
-               &(*customers)[i].classType,
-               &(*customers)[i].arrivalTime,
-               &(*customers)[i].serviceTime);
+               &(*customers)[i].user_id,
+               &(*customers)[i].class_type,
+               &(*customers)[i].arrival_time,
+               &(*customers)[i].service_time);
     }
 
     fclose(file);
 }
 
 
-int main(){
+int main(int argc, char *argv[]){
+     if (argc != 2) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
     struct Customer *customers;
     int totalCustomers;
 
