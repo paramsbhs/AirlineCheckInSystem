@@ -40,9 +40,7 @@ int main(int argc, char *argv[]){
 
     while (!isQueueEmpty(customerQueue)) {
         struct Customer customer = dequeue(customerQueue);
-        // Process customer (for now, just print the details)
-        printf("Processing Customer ID: %d, Class: %s, Arrival Time: %d (tenths of a second), Service Time: %d (tenths of a second)\n",
-               customer.user_id, customer.class_type == 1 ? "Business" : "Economy", customer.arrival_time, customer.service_time);
+        //write code here
     }
     free(customerQueue);
     return 0;

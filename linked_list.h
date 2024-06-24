@@ -20,7 +20,7 @@ struct Queue {
 };
 
 struct Queue* createQueue();
-int isQueueEmpty(struct Queue* queue);
+int isEmpty(struct Queue* queue);
 void enqueue(struct Queue* queue, struct Customer customerData);
 struct Customer dequeue(struct Queue* queue);
 struct Customer peek(struct Queue* queue);
