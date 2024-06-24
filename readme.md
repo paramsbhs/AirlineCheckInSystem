@@ -7,4 +7,9 @@ Begin by opening the terminal with the file location set to the location where a
 make
 
 After running make, it should compile the makefile and the source code, which after you can run 
-./AirlineCheckInSystem
+./ACS customers.txt
+
+Please have the file named exactly "customers.txt"
+
+In this file, there is a file "linked_list.c" and "linked_list.h" which are modified from A1 to suit the needs of A2.
+It is implemented for a queue.

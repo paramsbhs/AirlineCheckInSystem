@@ -1,8 +1,8 @@
 .phony default:
-default: AirlineCheckinSystem
+default: ACS
 
-AirlineCheckinSystem: AirlineCheckinSystem.c linked_list.c
-	gcc -pthread AirlineCheckinSystem.c linked_list.c -o AirlineCheckinSystem
+ACS: ACS.c linked_list.c
+	gcc -pthread ACS.c linked_list.c -o ACS
 
 .PHONY clean:
 clean:
