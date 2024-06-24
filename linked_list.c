@@ -15,7 +15,7 @@ struct Node* createNode(int customerData){
 	struct Node* newNode = (struct Node*)malloc(sizeof(struct Node)); //Allocate memory for a new Node
 	if(newNode == NULL){
 		perror("Memory Allocation Failed (Node)"); //Check to see if memory allocation is successful
-		return head;
+		return;
 	}
     newNode->customerData = customerData; //give the new node data
     newNode->next = NULL; //set the nodes next to NULL
@@ -75,8 +75,8 @@ int peek(struct Queue* queue){
 void QueueContents(struct Queue* queue){
     struct Node* temp = queue->front; //create a temporary node and set it to the front of the queue
     while(temp != NULL){ //loop through the queue
-        printf("%d ", temp->data); //print the data of the current node
-        struct temp = temp->next; //traverse through the queue
+        printf("%d ", temp->customerData); //print the data of the current node
+        temp = temp->next; //traverse through the queue
     }
     printf("\n"); //print a new line
 }
