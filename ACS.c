@@ -23,7 +23,7 @@ void inputFile(const char *filename, struct Queue *customerQueue, int *size) {
     for (int i = 0; i < *size; i++) {
         struct Customer customer;
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time);
-        enqueue(customerQueue, struct Customer customer); 
+        enqueue(customerQueue, customer); 
     }
     fclose(file);
 }
