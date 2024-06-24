@@ -21,7 +21,7 @@ struct Queue {
 
 struct Queue* createQueue();
 int isEmpty(struct Queue* queue);
-void enqueue(struct Queue* queue, int customerData);
+void enqueue(struct Queue* queue, struct Customer customerData);
 int dequeue(struct Queue* queue);
 int peek(struct Queue* queue);
 void QueueContents(struct Queue* queue);
