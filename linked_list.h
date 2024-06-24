@@ -9,7 +9,7 @@ struct Customer {
 };
 
 struct Node {
-    int customerData;
+    struct Customer customerData;
     struct Node* next;
 };
 
@@ -20,11 +20,10 @@ struct Queue {
 };
 
 struct Queue* createQueue();
-int isEmpty(struct Queue* queue);
+int isQueueEmpty(struct Queue* queue);
 void enqueue(struct Queue* queue, struct Customer customerData);
-int dequeue(struct Queue* queue);
-int peek(struct Queue* queue);
-void QueueContents(struct Queue* queue);
-void printList(struct Node* node);
+struct Customer dequeue(struct Queue* queue);
+struct Customer peek(struct Queue* queue);
+void displayQueue(struct Queue* queue);
 
 #endif
