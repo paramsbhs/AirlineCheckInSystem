@@ -13,13 +13,6 @@
 #define IDLE 0
 
 
-struct Customer {
-    int user_id;
-    int class_type;
-    int service_time;
-    int arrival_time;
-};
-
 void inputFile(const char *filename, struct Customer **customers, int *size) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -47,10 +40,10 @@ int main(int argc, char *argv[]){
     struct Queue* CustomerQueue = createQueue();
     int size;
 
-    inputFile(argv[1], CustomerQueue, &size);
+    inputFile(argv[1], CustomerQueue*, &size);
     displayQueue(CustomerQueue);
-        while (!isQueueEmpty(queue)) {
-        struct Customer customer = dequeue(queue);
+        while (!isQueueEmpty(CustomerQueue)) {
+        struct Customer customer = dequeue(CustomerQueue);
         // Process customer (for now, just print the details)
         printf("Processing Customer ID: %d, Class: %s, Arrival Time: %d (tenths of a second), Service Time: %d (tenths of a second)\n",
                customer.user_id, customer.class_type == 1 ? "Business" : "Economy", customer.arrival_time, customer.service_time);
