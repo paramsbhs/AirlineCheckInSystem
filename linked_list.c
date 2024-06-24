@@ -23,7 +23,7 @@ struct Node* createNode(int customerData){
 }
 
 
-struct Queue* create(Node* head){ //implementation from https://www.geeksforgeeks.org/queue-linked-list-implementation/
+struct Queue* create(struct Node* head){ //implementation from https://www.geeksforgeeks.org/queue-linked-list-implementation/
     struct Queue* queue = (struct Queue*)malloc(sizeof(struct Queue)); //Allocate memory for a new Queue
     if(queue == NULL){
         perror("Memory Allocation Failed (Queue)"); //Check to see if memory allocation is successful
@@ -34,22 +34,23 @@ struct Queue* create(Node* head){ //implementation from https://www.geeksforgeek
     return queue;
 }
 
-int isEmpty(Queue* queue){
-    return queue->front == 0; //check if the front of the queue is empty
+int isEmpty(struct Queue* queue){
+    return queue->front == NULL; //check if the front of the queue is empty
 }
 
-void enqueue(Queue* queue, int customerData){
+void enqueue(struct Queue* queue, int customerData){
     struct Node* node = createNode(customerData); //create a new node
-    if(queue->rear == NULL){ //if the rear of the queue is NULL
+    if(isEmpty(queue)){
         queue->front = queue->rear = node; //set the front and rear of the queue to the new node
-    } else {
+        return;
+    }else {
         queue->rear->next = node; //set the rear of the queue to the new node
         queue->rear = node; //set the rear of the queue to the new node
     }
     queue->size++; //increment the size of the queue
 }
 
-int dequeue(Queue* queue){
+int dequeue(struct Queue* queue){
     if(isEmpty(queue)){ //if the queue is empty
         return -1; //return -1
     }
@@ -64,25 +65,18 @@ int dequeue(Queue* queue){
     return customerData; //return the data
 }
 
-int peek(Queue* queue){
+int peek(struct Queue* queue){
     if(isEmpty(queue)){ //if the queue is empty
         return -1; //return -1
     }
     return queue->front->customerData; //return the data at the front of the queue
 }
 
-void QueueContents(Queue* queue){
+void QueueContents(struct Queue* queue){
     struct Node* temp = queue->front; //create a temporary node and set it to the front of the queue
     while(temp != NULL){ //loop through the queue
         printf("%d ", temp->data); //print the data of the current node
         struct temp = temp->next; //traverse through the queue
     }
     printf("\n"); //print a new line
-}
-
-void printList(Node *node){
-	while(node != NULL){ //loop through the linked list
-		printf("%d ", node->customerData); //print the data of the current node
-		node = node->next; //traverse through the list
-	}
 }
