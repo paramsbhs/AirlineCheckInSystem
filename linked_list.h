@@ -12,11 +12,12 @@ struct Queue {
     int size;
 };
 
-struct Queue* createQueue();
+Queue* createQueue();
 int isEmpty(struct Queue* queue);
 void enqueue(struct Queue* queue, int customerData);
 int dequeue(struct Queue* queue);
 int peek(struct Queue* queue);
 void QueueContents(struct Queue* queue);
+void printList(Node* node);
 
 #endif
