@@ -23,7 +23,7 @@ void inputFile(const char *filename, struct Queue *customerQueue, int *size) {
     for (int i = 0; i < *size; i++) {
         struct Customer customer;
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time);
-        enqueue(customerQueue, customer);
+        enqueue(customerQueue, customer); 
     }
     fclose(file);
 }
@@ -34,17 +34,17 @@ int main(int argc, char *argv[]){
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return EXIT_FAILURE;
     }
-    struct Queue* CustomerQueue = createQueue();
+    struct Queue *customerQueue = create();
     int size;
 
-    inputFile(argv[1], &CustomerQueue, &size);
-    displayQueue(CustomerQueue);
-        while (!isQueueEmpty(CustomerQueue)) {
-        struct Customer customer = dequeue(CustomerQueue);
+    inputFile(argv[1], &customerQueue, &size);
+    displayQueue(customerQueue);
+        while (!isQueueEmpty(customerQueue)) {
+        struct Customer customer = dequeue(customerQueue);
         // Process customer (for now, just print the details)
         printf("Processing Customer ID: %d, Class: %s, Arrival Time: %d (tenths of a second), Service Time: %d (tenths of a second)\n",
                customer.user_id, customer.class_type == 1 ? "Business" : "Economy", customer.arrival_time, customer.service_time);
     }
-    free(CustomerQueue);
+    free(customerQueue);
     return 0;
 }

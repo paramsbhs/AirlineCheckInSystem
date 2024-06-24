@@ -12,7 +12,7 @@
 
 
  
-struct Node* createNode(int customerData){
+struct Node* createNode(struct Customer customerData){
 	struct Node* newNode = (struct Node*)malloc(sizeof(struct Node)); //Allocate memory for a new Node
 	if(newNode == NULL){
 		perror("Memory Allocation Failed (Node)"); //Check to see if memory allocation is successful
@@ -39,7 +39,7 @@ int isEmpty(struct Queue* queue){
     return queue->front == NULL; //check if the front of the queue is empty
 }
 
-void enqueue(struct Queue* queue, int customerData){
+void enqueue(struct Queue* queue, struct Customer customerData){
     struct Node* node = createNode(customerData); //create a new node
     if(isEmpty(queue)){
         queue->front = queue->rear = node; //set the front and rear of the queue to the new node
