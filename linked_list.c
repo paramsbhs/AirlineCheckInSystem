@@ -12,19 +12,19 @@
 
  
 struct Node* createNode(int customerData){
-	Node* newNode = (Node*)malloc(sizeof(Node)); //Allocate memory for a new Node
+	struct Node* newNode = (struct Node*)malloc(sizeof(struct Node)); //Allocate memory for a new Node
 	if(newNode == NULL){
 		perror("Memory Allocation Failed (Node)"); //Check to see if memory allocation is successful
 		return head;
 	}
-    node->customerData = customerData; //give the new node data
-    node->next = NULL; //set the nodes next to NULL
-    return node;
+    newNode->customerData = customerData; //give the new node data
+    newNode->next = NULL; //set the nodes next to NULL
+    return newNode;
 }
 
 
 struct Queue* create(Node* head){ //implementation from https://www.geeksforgeeks.org/queue-linked-list-implementation/
-    Queue* queue = (Queue*)malloc(sizeof(Queue)); //Allocate memory for a new Queue
+    struct Queue* queue = (struct Queue*)malloc(sizeof(struct Queue)); //Allocate memory for a new Queue
     if(queue == NULL){
         perror("Memory Allocation Failed (Queue)"); //Check to see if memory allocation is successful
         return NULL;
@@ -39,7 +39,7 @@ int isEmpty(Queue* queue){
 }
 
 void enqueue(Queue* queue, int customerData){
-    Node* node = createNode(customerData); //create a new node
+    struct Node* node = createNode(customerData); //create a new node
     if(queue->rear == NULL){ //if the rear of the queue is NULL
         queue->front = queue->rear = node; //set the front and rear of the queue to the new node
     } else {
@@ -53,7 +53,7 @@ int dequeue(Queue* queue){
     if(isEmpty(queue)){ //if the queue is empty
         return -1; //return -1
     }
-    Node* temp = queue->front; //create a temporary node and set it to the front of the queue
+    struct Node* temp = queue->front; //create a temporary node and set it to the front of the queue
     int customerData = temp->customerData; //get the data from the temporary node
     queue->front = queue->front->next; //set the front of the queue to the next node
     if(queue->front == NULL){ //if the front of the queue is NULL
@@ -72,10 +72,10 @@ int peek(Queue* queue){
 }
 
 void QueueContents(Queue* queue){
-    Node* temp = queue->front; //create a temporary node and set it to the front of the queue
+    struct Node* temp = queue->front; //create a temporary node and set it to the front of the queue
     while(temp != NULL){ //loop through the queue
         printf("%d ", temp->data); //print the data of the current node
-        temp = temp->next; //traverse through the queue
+        struct temp = temp->next; //traverse through the queue
     }
     printf("\n"); //print a new line
 }
