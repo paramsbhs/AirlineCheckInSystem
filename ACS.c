@@ -20,7 +20,7 @@ struct Customer {
     int arrival_time;
 };
 
-void inputFile(const char *filename, Customer **customers, int *totalCustomers) {
+void inputFile(const char *filename, struct Customer **customers, int *totalCustomers) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Failed to open file");
@@ -46,15 +46,15 @@ void inputFile(const char *filename, Customer **customers, int *totalCustomers) 
 
 
 int main(){
-        Customer *customers;
+    struct Customer *customers;
     int totalCustomers;
 
     inputFile(argv[1], &customers, &totalCustomers);
     for (int i = 0; i < totalCustomers; i++) {
-        printf("Customer %d\n", customers[i].id);
-        printf("  Class: %s\n", customers[i].classType == 1 ? "Business" : "Economy");
-        printf("  Arrival Time: %d (tenths of a second)\n", customers[i].arrivalTime);
-        printf("  Service Time: %d (tenths of a second)\n", customers[i].serviceTime);
+        printf("Customer %d\n", customers[i].user_id);
+        printf("  Class: %s\n", customers[i].class_type == 1 ? "Business" : "Economy");
+        printf("  Arrival Time: %d (tenths of a second)\n", customers[i].arrival_time);
+        printf("  Service Time: %d (tenths of a second)\n", customers[i].service_time);
     }
     return 0;
 }
