@@ -13,7 +13,7 @@
 #define IDLE 0
 
 
-struct customer_info {
+struct Customer {
     int user_id;
     int class_type;
     int service_time;
@@ -27,7 +27,7 @@ void inputFile(const char *filename, Customer **customers, int *totalCustomers) 
         exit(EXIT_FAILURE);
     }
     fscanf(file, "%d\n", totalCustomers);
-    *customers = (Customer *)malloc((*totalCustomers) * sizeof(Customer));
+    *customers = (struct Customer *)malloc((*totalCustomers) * sizeof(struct Customer));
     if (*customers == NULL) {
         perror("Failed to allocate memory");
         exit(EXIT_FAILURE);
@@ -46,6 +46,9 @@ void inputFile(const char *filename, Customer **customers, int *totalCustomers) 
 
 
 int main(){
+        Customer *customers;
+    int totalCustomers;
+
     inputFile(argv[1], &customers, &totalCustomers);
     for (int i = 0; i < totalCustomers; i++) {
         printf("Customer %d\n", customers[i].id);
