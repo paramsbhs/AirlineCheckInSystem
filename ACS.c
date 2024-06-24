@@ -13,20 +13,17 @@
 #define IDLE 0
 
 
-void inputFile(const char *filename, struct Customer **customers, int *size) {
+void inputFile(const char *filename, struct Queue *customerQueue, int *size) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Failed to open file");
         exit(EXIT_FAILURE);
     }
     fscanf(file, "%d\n", size);
-    *customers = (struct Customer *)malloc((*size) * sizeof(struct Customer));
-    if (*customers == NULL) {
-        perror("Failed to allocate memory");
-        exit(EXIT_FAILURE);
-    }
     for (int i = 0; i < *size; i++) {
-        fscanf(file, "%d:%d,%d,%d\n",&(*customers)[i].user_id,&(*customers)[i].class_type,&(*customers)[i].arrival_time,&(*customers)[i].service_time);
+        struct Customer customer;
+        fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time);
+        enqueue(customerQueue, customer);
     }
     fclose(file);
 }
