@@ -15,7 +15,7 @@ struct Node* createNode(int customerData){
 	struct Node* newNode = (struct Node*)malloc(sizeof(struct Node)); //Allocate memory for a new Node
 	if(newNode == NULL){
 		perror("Memory Allocation Failed (Node)"); //Check to see if memory allocation is successful
-		return;
+		return NULL;
 	}
     newNode->customerData = customerData; //give the new node data
     newNode->next = NULL; //set the nodes next to NULL

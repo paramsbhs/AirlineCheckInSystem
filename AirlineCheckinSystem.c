@@ -20,3 +20,7 @@ struct customer_info {
     int service_time;
     int arrival_time;
 };
+
+int main(){
+    return 0;
+}
