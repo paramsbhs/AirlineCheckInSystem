@@ -1,11 +1,9 @@
-output := diningPhilosopher
+.phony default:
+default: AirlineCheckinSystem
 
-CFLAGS :=
-#CFLAGS += -DDEBUG
+AirlineCheckinSystem: AirlineCheckinSystem.c
+	gcc -pthread AirlineCheckinSystem.c -o AirlineCheckinSystem
 
-main : main.o  
-	gcc -o $(output) main.o -lpthread -lrt
-
+.PHONY clean:
 clean:
-	rm *.o
-	rm $(output)
+	-rm -rf *.o *.exe
