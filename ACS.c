@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
     struct Queue* CustomerQueue = createQueue();
     int size;
 
-    inputFile(argv[1], CustomerQueue*, &size);
+    inputFile(argv[1], &CustomerQueue, &size);
     displayQueue(CustomerQueue);
         while (!isQueueEmpty(CustomerQueue)) {
         struct Customer customer = dequeue(CustomerQueue);
@@ -48,6 +48,6 @@ int main(int argc, char *argv[]){
         printf("Processing Customer ID: %d, Class: %s, Arrival Time: %d (tenths of a second), Service Time: %d (tenths of a second)\n",
                customer.user_id, customer.class_type == 1 ? "Business" : "Economy", customer.arrival_time, customer.service_time);
     }
-    free(queue);
+    free(CustomerQueue);
     return 0;
 }
