@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
     inputFile(argv[1], customerQueue, &size);
     displayQueue(customerQueue);
 
-    while (!isQueueEmpty(customerQueue)) {
+    while (!isEmpty(customerQueue)) {
         struct Customer customer = dequeue(customerQueue);
         //write code here
     }
