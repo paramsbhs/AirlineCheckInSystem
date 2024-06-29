@@ -39,9 +39,13 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     fclose(file);
 }
 
-void* CustomerThread(void* customer){
+void* customerThread(void* customer){
 
 
+}
+
+void* clerkThread(void* customer){
+    
 }
 
 int main(int argc, char *argv[]){
@@ -64,25 +68,15 @@ int main(int argc, char *argv[]){
 
     pthread_t clerk; //Initialize the clerk thread
     pthread_create(&clerk, NULL, clerkThread, NULL); //Create the clerk thread
-
+    //create all the threads
+    //then process
 
     while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) { //While the queues are not empty, run the simulation
-        //create customer threads
-        // for (int i = 0; i < CLERKS; i++) {
-        //     pthread_create(&clerkThreads[i], NULL, clerkThread, NULL);
-        // }
-        // for (int i = 0; i < size; i++) {
-        //      struct Customer* customer = (i % 2 == 0) ? dequeue(businessQueue) : dequeue(economyQueue);
-        //      pthread_create(&customerThreads[i], NULL, createCustomerThread, customer);
-        // }
-        // for (int i = 0; i < size; i++) {
-        //     pthread_join(customerThreads[i], NULL);
-        // }
-        // Initialize mutexes and condition variables
-        // Create clerk threads
+        //customer thread function
+        // clerk thread function
+        // join customer and clerk threads
     }
     usleep(100000);
-    // Join customer and clerk threads
     free(businessQueue); //Free the business queue
     free(economyQueue); //Free the economy queue
     return 0;
