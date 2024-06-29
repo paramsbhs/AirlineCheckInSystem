@@ -21,39 +21,26 @@ pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
     file and stores the data in the queue
 */
 void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *businessQueue, int *size) {
-    FILE *file = fopen(filename, "r");
+    FILE *file = fopen(filename, "r"); //Open the file in read mode
     if (file == NULL) {
         perror("Failed to open file");
         exit(EXIT_FAILURE);
     }
-    fscanf(file, "%d\n", size);
-    for (int i = 0; i < *size; i++) {
+    fscanf(file, "%d\n", size); //scan how many customers are in the file
+    for (int i = 0; i < *size; i++) { //store the data from the file in the queue
         struct Customer customer;
-        fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time);
-        if(customer.class_type == 1){
+        fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time); //scan the data from the file
+        if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
             enqueue(businessQueue, customer);
         }else{
-            enqueue(economyQueue, customer);
+            enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
         }
     }
     fclose(file);
 }
 
-void* createCusomterThread(void* customer){
-    struct Customer* customerData = (struct Customer*)customer;
-    sleep(customerData->service_time);
-    printf("A customer arrives: customer ID %2d. \n", customerData->user_id);
-    if(customerData->class_type == 1){
-        pthread_mutex_lock(&businessQueueMutex);
-        //enqueue(businessQueue, customerData);
-        pthread_mutex_unlock(&businessQueueMutex);
-    }else{
-        pthread_mutex_lock(&economyQueueMutex);
-        //enqueue(economyQueue, customerData);
-        pthread_mutex_unlock(&economyQueueMutex);
-    }
-    pthread_cond_signal(&clerkAvailable);
-    pthread_exit(NULL);
+void* CustomerThread(void* customer){
+
 
 }
 
@@ -62,23 +49,41 @@ int main(int argc, char *argv[]){
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return EXIT_FAILURE;
     }
-    struct Queue *economyQueue = createQueue();
-    struct Queue *businessQueue = createQueue();
-    int size;
 
-    inputFile(argv[1], economyQueue, businessQueue, &size);
+    struct Queue *economyQueue = createQueue(); //Initialize the economy Queue
+    struct Queue *businessQueue = createQueue(); //Initialize the business Queue
+    int size; //Initialize the size of the queue
+
+    inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
+
+    pthread_t clerkThreads[CLERKS]; // Initialize the clerk threads
+    pthread_t customerThreads[size]; // Initialize the customer threads
+
     displayQueue(economyQueue);
     displayQueue(businessQueue);
 
-    while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) {
-        struct Customer economyCustomer = dequeue(economyQueue);
-        struct Customer businessCustomer = dequeue(businessQueue);
+    pthread_t clerk; //Initialize the clerk thread
+    pthread_create(&clerk, NULL, clerkThread, NULL); //Create the clerk thread
+
+
+    while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) { //While the queues are not empty, run the simulation
         //create customer threads
+        // for (int i = 0; i < CLERKS; i++) {
+        //     pthread_create(&clerkThreads[i], NULL, clerkThread, NULL);
+        // }
+        // for (int i = 0; i < size; i++) {
+        //      struct Customer* customer = (i % 2 == 0) ? dequeue(businessQueue) : dequeue(economyQueue);
+        //      pthread_create(&customerThreads[i], NULL, createCustomerThread, customer);
+        // }
+        // for (int i = 0; i < size; i++) {
+        //     pthread_join(customerThreads[i], NULL);
+        // }
         // Initialize mutexes and condition variables
         // Create clerk threads
     }
+    usleep(100000);
     // Join customer and clerk threads
-    free(businessQueue);
-    free(economyQueue);
+    free(businessQueue); //Free the business queue
+    free(economyQueue); //Free the economy queue
     return 0;
 }
