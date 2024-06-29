@@ -49,8 +49,11 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     for processing, releases the queue mutex, and 
     returns NULL.
 */
-void* customerThread(void* customerarg){
-    struct Customer *customer = (struct Customer*) customerarg; //type cast
+void* customerThread(void* customerArg){
+    struct ThreadArgs* customerArguments = (struct ThreadArgs*)customerArg;
+    struct Queue* businessQueue = customerArguments->businessQueue;
+    struct Queue* economyQueue = customerArguments->economyQueue;
+    struct Customer customer = customerArguments->customer;
     usleep(customer->arrival_time*100000); //sleep until the customer arrives, multiply by 100000 to convert to microseconds
     printf("A customer arrives: customer ID %2d. \n", customer->user_id); //print that the customer has arrived
     if(customer->class_type == 1){ //if the customer is in business class

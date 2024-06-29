@@ -19,6 +19,12 @@ struct Queue {
     int size;
 };
 
+struct ThreadQueue {
+    struct Queue* businessQueue;
+    struct Queue* economyQueue;
+    struct Customer customer;
+};
+
 struct Queue* createQueue();
 int isEmpty(struct Queue* queue);
 void enqueue(struct Queue* queue, struct Customer customerData);
