@@ -116,8 +116,8 @@ void* customerThread(void* param){
     mutex, and returns NULL.
 */
 void* clerkThread(void* param){
-	struct Customer* cPtr = (customer *)param;
-	sleep(cPtr->time);
-	printf("Service customer %2d. for %2d seconds\n", cPtr->id, cPtr->time);
+	struct Customer *cPtr = (struct Customer*)param;
+	sleep(cPtr->service_time);
+	printf("Service customer %2d. for %2d seconds\n", cPtr->user_id, cPtr->service_time);
 	return NULL;
 }
