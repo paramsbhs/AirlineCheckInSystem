@@ -1,11 +1,13 @@
 #ifndef _LINKEDLIST_H_
 #define _LINKEDLIST_H_
+#include <pthread.h>
 
 struct Customer {
     int user_id;
     int class_type;
     int service_time;
     int arrival_time;
+    pthread_t thread;
 };
 
 struct Node {

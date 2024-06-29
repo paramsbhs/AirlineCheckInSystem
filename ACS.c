@@ -64,10 +64,17 @@ int main(int argc, char *argv[]){
     //then process
 
 
-    pthread_join(clerk, NULL);
-    free(businessQueue); //Free the business queue
-    free(economyQueue); //Free the economy queue
-    sleep(3);//
+    for(int k = 0; k < size; k++){
+        pthread_join(customerThreads[k], NULL); //Join the customer threads
+        free(economyQueue);
+        free(businessQueue);
+    }
+    for(int l = 0; l < CLERKS; l++){
+        pthread_join(clerkThreads[l], NULL); //Join the clerk threads
+    }
+    pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
+    pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
+    sleep(3);
     return 0;
 }
 
@@ -87,8 +94,10 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time); //scan the data from the file
         if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
             enqueue(businessQueue, customer);
+            pthread_create(&customer.thread, NULL, customerThread, NULL); //create the customer thread
         }else{
             enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
+            pthread_create(&customer.thread, NULL, customerThread, NULL); //create the customer thread
         }
     }
     fclose(file);

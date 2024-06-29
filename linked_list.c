@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "linked_list.h"
 
 struct Node* createNode(struct Customer customerData) {
