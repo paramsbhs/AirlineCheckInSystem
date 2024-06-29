@@ -7,8 +7,8 @@
 #include "linked_list.h"
 
 void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *businessQueue, int *size);
-void* customerThread(void* customer);
-void* clerkThread(void* customer); 
+void* customerThread(void* param);
+void* clerkThread(void* param); 
 
 #define QUEUE 2
 #define CLERKS 5
@@ -36,19 +36,26 @@ int main(int argc, char *argv[]){
     pthread_t clerkThreads[CLERKS]; // Initialize the clerk threads
     pthread_t customerThreads[size]; // Initialize the customer threads
 
-    displayQueue(economyQueue);
-    displayQueue(businessQueue);
+    //displayQueue(economyQueue); testing purposes
+    //displayQueue(businessQueue); testing purposes
 
-    pthread_t clerk; //Initialize the clerk thread
-    pthread_create(&clerk, NULL, clerkThread, NULL); //Create the clerk thread
+    pthread_t clerk; //thread identifier
+    pthread_attr_t clerkattr; //thread attributes
+    pthread_attr_init(&clerkattr); //get the thread attributes
+    //pthread_create(&clerk, &clerkattr, clerkThread, NULL); //Create the clerk thread
+    int i, rc;
+    for(i = 0; i < CLERKS; i++){
+        if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, NULL))){ //Create the clerk threads, Sample Code (pthread_create.c)
+            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
+            return EXIT_FAILURE;
+        }
+
+    }
     //create all the threads
     //then process
 
-    while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) { //While the queues are not empty, run the simulation
-        //customer thread function
-        // clerk thread function
-        // join customer and clerk threads
-    }
+
+    pthread_join(clerk, NULL);
     usleep(2); 
     free(businessQueue); //Free the business queue
     free(economyQueue); //Free the economy queue
@@ -88,25 +95,17 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     for processing, releases the queue mutex, and 
     returns NULL.
 */
-void* customerThread(void* customer){
-    struct Customer *customer = (struct Customer*) customer; //type cast
-    usleep(customer->arrival_time*100000); //sleep until the customer arrives, multiply by 100000 to convert to microseconds
-    printf("A customer arrives: customer ID %2d. \n", customer->user_id); //print that the customer has arrived
-    if(customer->class_type == 1){ //if the customer is in business class
-        pthread_mutex_lock(&businessQueueMutex); //lock the business queue
-        enqueue(businessQueue, *customer); //add the customer to the business queue
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, businessQueue->size); //print contents
-        pthread_mutex_unlock(&businessQueueMutex); //unlock the business queue
-    }else{ //if the customer is in economy class
-        pthread_mutex_lock(&economyQueueMutex); //lock the economy queue
-        enqueue(economyQueue, *customer); //add the customer to the economy queue
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, economyQueue->size); //print contents
-        pthread_mutex_unlock(&economyQueueMutex); //unlock the economy queue
-    }
-    pthread_cond_signal(&clerkAvailable); // Signal the clerk thread that a customer is available for processing.
-    return NULL;
+void* customerThread(void* param){
+
 }
 
-void* clerkThread(void* customer){
+/*
+    The clerkThread function simulates the clerk
+    processing the customer, it acquires the queue
+    mutex, dequeues the customer from the queue,
+    sleeps for the service time, releases the queue
+    mutex, and returns NULL.
+*/
+void* clerkThread(void* param){
 
 }
