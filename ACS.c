@@ -11,8 +11,11 @@
 #define TRUE 1
 #define FALSE 0
 #define IDLE 0
-
-void inputFile(const char *filename, struct Queue *customerQueue, int *size) {
+/*  
+    inputFile function reads the input 
+    file and stores the data in the queue
+*/
+void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *businessQueue, int *size) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Failed to open file");
@@ -22,7 +25,11 @@ void inputFile(const char *filename, struct Queue *customerQueue, int *size) {
     for (int i = 0; i < *size; i++) {
         struct Customer customer;
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time);
-        enqueue(customerQueue, customer);
+        if(customer.class_type == 1){
+            enqueue(businessQueue, customer);
+        }else{
+            enqueue(economyQueue, customer);
+        }
     }
     fclose(file);
 }
@@ -32,16 +39,19 @@ int main(int argc, char *argv[]){
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return EXIT_FAILURE;
     }
-    struct Queue *customerQueue = createQueue();
+    struct Queue *economyQueue = createQueue();
+    struct Queue *businessQueue = createQueue();
     int size;
 
-    inputFile(argv[1], customerQueue, &size);
-    displayQueue(customerQueue);
+    inputFile(argv[1], economyQueue, businessQueue, &size);
+    displayQueue(economyQueue);
+    displayQueue(businessQueue);
 
-    while (!isEmpty(customerQueue)) {
-        struct Customer customer = dequeue(customerQueue);
+    while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) {
+        struct Customer customer = dequeue(economyQueue);
+        struct Customer customer = dequeue(businessQueue);
         //write code here
     }
-    free(customerQueue);
+    free(economyQueue);
     return 0;
 }

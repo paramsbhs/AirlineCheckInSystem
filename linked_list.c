@@ -70,5 +70,4 @@ void displayQueue(struct Queue* queue) {
         printf("Customer ID: %d, Class: %d, Arrival Time: %d, Service Time: %d\n", temp->customerData.user_id, temp->customerData.class_type, temp->customerData.arrival_time, temp->customerData.service_time); //print the data of the current node
         temp = temp->next; //traverse through the queue
     }
-    printf("\n"); //print a new line
 }
