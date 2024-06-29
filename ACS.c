@@ -42,23 +42,32 @@ int main(int argc, char *argv[]){
     pthread_t clerk; //thread identifier
     pthread_attr_t clerkattr; //thread attributes
     pthread_attr_init(&clerkattr); //get the thread attributes
-    //pthread_create(&clerk, &clerkattr, clerkThread, NULL); //Create the clerk thread
     int i, rc;
     for(i = 0; i < CLERKS; i++){
         if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, NULL))){ //Create the clerk threads, Sample Code (pthread_create.c)
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
+    }
 
+    pthread_t customer;
+    pthread_attr_t customerattr;
+    pthread_attr_init(&customerattr);
+    int j, rc2;
+    for(j = 0; j < size; j++){
+        if((rc2 = pthread_create(&customerThreads[j], &customerattr, customerThread, NULL))){ //Create the customer threads, Sample Code (pthread_create.c)
+            fprintf(stderr, "error: pthread_create, rc: %d\n", rc2);
+            return EXIT_FAILURE;
+        }
     }
     //create all the threads
     //then process
 
 
     pthread_join(clerk, NULL);
-    usleep(2); 
     free(businessQueue); //Free the business queue
     free(economyQueue); //Free the economy queue
+    sleep(3);//
     return 0;
 }
 
@@ -107,5 +116,8 @@ void* customerThread(void* param){
     mutex, and returns NULL.
 */
 void* clerkThread(void* param){
-
+	struct Customer* cPtr = (customer *)param;
+	sleep(cPtr->time);
+	printf("Service customer %2d. for %2d seconds\n", cPtr->id, cPtr->time);
+	return NULL;
 }
