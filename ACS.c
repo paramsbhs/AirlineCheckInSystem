@@ -41,15 +41,15 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
 
 void* createCusomterThread(void* customer){
     struct Customer* customerData = (struct Customer*)customer;
-    sleep(customerData.service_time);
-    printf("A customer arrives: customer ID %2d. \n", customerData.user_id);
-    if(customerData.class_type == 1){
+    sleep(customerData->service_time);
+    printf("A customer arrives: customer ID %2d. \n", customerData->user_id);
+    if(customerData->class_type == 1){
         pthread_mutex_lock(&businessQueueMutex);
-        enqueue(businessQueue, customerData);
+        //enqueue(businessQueue, customerData);
         pthread_mutex_unlock(&businessQueueMutex);
     }else{
         pthread_mutex_lock(&economyQueueMutex);
-        enqueue(economyQueue, customerData);
+        //enqueue(economyQueue, customerData);
         pthread_mutex_unlock(&economyQueueMutex);
     }
     pthread_cond_signal(&clerkAvailable);
