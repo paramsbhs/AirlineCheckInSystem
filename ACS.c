@@ -10,6 +10,9 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
 void* customerThread(void* param);
 void* clerkThread(void* param); 
 
+struct Queue *economyQueue;
+struct Queue *businessQueue;
+
 #define QUEUE 2
 #define CLERKS 5
 #define TRUE 1
@@ -27,8 +30,8 @@ int main(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
 
-    struct Queue *economyQueue = createQueue(); //Initialize the economy Queue
-    struct Queue *businessQueue = createQueue(); //Initialize the business Queue
+    economyQueue = createQueue(); //Initialize the economy Queue
+    businessQueue = createQueue(); //Initialize the business Queue
     int size; //Initialize the size of the queue
 
     inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
@@ -60,9 +63,6 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
     }
-    //create all the threads
-    //then process
-
 
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
