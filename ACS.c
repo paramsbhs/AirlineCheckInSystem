@@ -114,7 +114,28 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     returns NULL.
 */
 void* customerThread(void* param){
+    struct Customer* customer = (struct Customer*)param;
 
+    // Simulate arrival time
+    usleep(customer->arrival_time * 100000); // Convert to microseconds
+
+    printf("A customer arrives: customer ID %2d. \n", customer->user_id);
+
+    if (customer->class_type == 1) {
+        pthread_mutex_lock(&businessQueueMutex);
+        enqueue(businessQueue, *customer);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessQueue->size);
+        pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&businessQueueMutex);
+    } else {
+        pthread_mutex_lock(&economyQueueMutex);
+        enqueue(economyQueue, *customer);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economyQueue->size);
+        pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&economyQueueMutex);
+    }
+
+    return NULL;
 }
 
 /*
@@ -125,5 +146,50 @@ void* customerThread(void* param){
     mutex, and returns NULL.
 */
 void* clerkThread(void* param){
+    int clerk_id = *((int*)param);
 
+    while (TRUE) {
+        struct Customer customer;
+        int customerFound = FALSE;
+
+        pthread_mutex_lock(&businessQueueMutex);
+        if (!isEmpty(businessQueue)) {
+            customer = dequeue(businessQueue);
+            customerFound = TRUE;
+        }
+        pthread_mutex_unlock(&businessQueueMutex);
+
+        if (!customerFound) {
+            pthread_mutex_lock(&economyQueueMutex);
+            if (!isEmpty(economyQueue)) {
+                customer = dequeue(economyQueue);
+                customerFound = TRUE;
+            }
+            pthread_mutex_unlock(&economyQueueMutex);
+        }
+
+        if (customerFound) {
+            struct timeval start, end;
+            gettimeofday(&start, NULL);
+            float start_time = start.tv_sec + (start.tv_usec / 1000000.0);
+            
+            printf("A clerk starts serving a customer: start time %.2f, the customer ID %2d, the clerk ID %1d. \n", start_time, customer.user_id, clerk_id);
+
+            usleep(customer.service_time * 100000); // Simulate service time
+
+            gettimeofday(&end, NULL);
+            float end_time = end.tv_sec + (end.tv_usec / 1000000.0);
+
+            printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n", end_time, customer.user_id, clerk_id);
+        } else {
+            pthread_mutex_lock(&businessQueueMutex);
+            pthread_mutex_lock(&economyQueueMutex);
+            if (isEmpty(businessQueue) && isEmpty(economyQueue)) {
+                pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
+            }
+            pthread_mutex_unlock(&economyQueueMutex);
+            pthread_mutex_unlock(&businessQueueMutex);
+        }
+    }
+    return NULL;
 }
