@@ -48,8 +48,8 @@ int main(int argc, char *argv[]){
     displayQueue(businessQueue);
 
     while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) {
-        struct Customer customer = dequeue(economyQueue);
-        struct Customer customer = dequeue(businessQueue);
+        struct Customer economyCustomer = dequeue(economyQueue);
+        struct Customer businessCustomer = dequeue(businessQueue);
         //write code here
     }
     free(economyQueue);
