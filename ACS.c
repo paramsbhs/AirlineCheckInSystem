@@ -46,34 +46,26 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     acquires the appropriate queue mutex, enqueues
     the customer into the respective queue, signals
     the clerk thread that a customer is available
-    for processing, releases the queue mutex, sleeps
-    for the service time, prints a message indicating
-    that the customer has been served, and returns NULL.
+    for processing, releases the queue mutex, and 
+    returns NULL.
 */
-void* customerThread(void* customer){
+void* customerThread(void* customerarg){
+    struct Customer *customer = (struct Customer*) customerarg; //type cast
     usleep(customer->arrival_time*100000); //sleep until the customer arrives, multiply by 100000 to convert to microseconds
     printf("A customer arrives: customer ID %2d. \n", customer->user_id); //print that the customer has arrived
-// Acquire the appropriate queue mutex based on the class type of the customer (business or economy).
-    if(customer->class_type == 1){
-        pthread_mutex_lock(&businessQueueMutex);
-        enqueue(businessQueue, *customer);
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, businessQueue->size);
-        pthread_mutex_unlock(&businessQueueMutex);
-    }else{
-        pthread_mutex_lock(&economyQueueMutex);
-        enqueue(economyQueue, *customer);
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, economyQueue->size);
-        pthread_mutex_unlock(&economyQueueMutex);
+    if(customer->class_type == 1){ //if the customer is in business class
+        pthread_mutex_lock(&businessQueueMutex); //lock the business queue
+        enqueue(businessQueue, *customer); //add the customer to the business queue
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, businessQueue->size); //print contents
+        pthread_mutex_unlock(&businessQueueMutex); //unlock the business queue
+    }else{ //if the customer is in economy class
+        pthread_mutex_lock(&economyQueueMutex); //lock the economy queue
+        enqueue(economyQueue, *customer); //add the customer to the economy queue
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, economyQueue->size); //print contents
+        pthread_mutex_unlock(&economyQueueMutex); //unlock the economy queue
     }
     pthread_cond_signal(&clerkAvailable); // Signal the clerk thread that a customer is available for processing.
     return NULL;
-// Enqueue the customer into the respective queue.
-// Signal the clerk thread that a customer is available for processing.
-// Release the queue mutex.
-// Sleep for the service time of the customer to simulate the time it takes for the customer to be served by the clerk.
-// Print a message indicating that the customer has been served.
-// Return NULL.
-
 }
 
 void* clerkThread(void* customer){
