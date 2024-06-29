@@ -6,6 +6,10 @@
 #include <string.h>
 #include "linked_list.h"
 
+void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *businessQueue, int *size);
+void* customerThread(void* customer);
+void* clerkThread(void* customer); 
+
 #define QUEUE 2
 #define CLERKS 5
 #define TRUE 1
@@ -15,6 +19,41 @@
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
+
+
+int main(int argc, char *argv[]){
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    struct Queue *economyQueue = createQueue(); //Initialize the economy Queue
+    struct Queue *businessQueue = createQueue(); //Initialize the business Queue
+    int size; //Initialize the size of the queue
+
+    inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
+
+    pthread_t clerkThreads[CLERKS]; // Initialize the clerk threads
+    pthread_t customerThreads[size]; // Initialize the customer threads
+
+    displayQueue(economyQueue);
+    displayQueue(businessQueue);
+
+    pthread_t clerk; //Initialize the clerk thread
+    pthread_create(&clerk, NULL, clerkThread, NULL); //Create the clerk thread
+    //create all the threads
+    //then process
+
+    while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) { //While the queues are not empty, run the simulation
+        //customer thread function
+        // clerk thread function
+        // join customer and clerk threads
+    }
+    usleep(2); 
+    free(businessQueue); //Free the business queue
+    free(economyQueue); //Free the economy queue
+    return 0;
+}
 
 /*  
     inputFile function reads the input 
@@ -49,11 +88,8 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     for processing, releases the queue mutex, and 
     returns NULL.
 */
-void* customerThread(void* customerArg){
-    struct ThreadArgs* customerArguments = (struct ThreadArgs*)customerArg;
-    struct Queue* businessQueue = customerArguments->businessQueue;
-    struct Queue* economyQueue = customerArguments->economyQueue;
-    struct Customer customer = customerArguments->customer;
+void* customerThread(void* customer){
+    struct Customer *customer = (struct Customer*) customer; //type cast
     usleep(customer->arrival_time*100000); //sleep until the customer arrives, multiply by 100000 to convert to microseconds
     printf("A customer arrives: customer ID %2d. \n", customer->user_id); //print that the customer has arrived
     if(customer->class_type == 1){ //if the customer is in business class
@@ -73,38 +109,4 @@ void* customerThread(void* customerArg){
 
 void* clerkThread(void* customer){
 
-}
-
-int main(int argc, char *argv[]){
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    struct Queue *economyQueue = createQueue(); //Initialize the economy Queue
-    struct Queue *businessQueue = createQueue(); //Initialize the business Queue
-    int size; //Initialize the size of the queue
-
-    inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
-
-    pthread_t clerkThreads[CLERKS]; // Initialize the clerk threads
-    pthread_t customerThreads[size]; // Initialize the customer threads
-
-    displayQueue(economyQueue);
-    displayQueue(businessQueue);
-
-    pthread_t clerk; //Initialize the clerk thread
-    pthread_create(&clerk, NULL, clerkThread, NULL); //Create the clerk thread
-    //create all the threads
-    //then process
-
-    while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) { //While the queues are not empty, run the simulation
-        //customer thread function
-        // clerk thread function
-        // join customer and clerk threads
-    }
-    usleep(2); 
-    free(businessQueue); //Free the business queue
-    free(economyQueue); //Free the economy queue
-    return 0;
 }
