@@ -39,13 +39,45 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     fclose(file);
 }
 
+/*
+    The customerThread function simulates the customer
+    arriving at the check-in counter, it extracts
+    the information, sleeps for the arrival time,
+    acquires the appropriate queue mutex, enqueues
+    the customer into the respective queue, signals
+    the clerk thread that a customer is available
+    for processing, releases the queue mutex, sleeps
+    for the service time, prints a message indicating
+    that the customer has been served, and returns NULL.
+*/
 void* customerThread(void* customer){
-
+    usleep(customer->arrival_time*100000); //sleep until the customer arrives, multiply by 100000 to convert to microseconds
+    printf("A customer arrives: customer ID %2d. \n", customer->user_id); //print that the customer has arrived
+// Acquire the appropriate queue mutex based on the class type of the customer (business or economy).
+    if(customer->class_type == 1){
+        pthread_mutex_lock(&businessQueueMutex);
+        enqueue(businessQueue, *customer);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, businessQueue->size);
+        pthread_mutex_unlock(&businessQueueMutex);
+    }else{
+        pthread_mutex_lock(&economyQueueMutex);
+        enqueue(economyQueue, *customer);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", customer->class_type, economyQueue->size);
+        pthread_mutex_unlock(&economyQueueMutex);
+    }
+    pthread_cond_signal(&clerkAvailable); // Signal the clerk thread that a customer is available for processing.
+    return NULL;
+// Enqueue the customer into the respective queue.
+// Signal the clerk thread that a customer is available for processing.
+// Release the queue mutex.
+// Sleep for the service time of the customer to simulate the time it takes for the customer to be served by the clerk.
+// Print a message indicating that the customer has been served.
+// Return NULL.
 
 }
 
 void* clerkThread(void* customer){
-    
+
 }
 
 int main(int argc, char *argv[]){
@@ -76,7 +108,7 @@ int main(int argc, char *argv[]){
         // clerk thread function
         // join customer and clerk threads
     }
-    usleep(100000);
+    usleep(2); 
     free(businessQueue); //Free the business queue
     free(economyQueue); //Free the economy queue
     return 0;
