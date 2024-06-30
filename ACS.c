@@ -23,7 +23,8 @@ pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
 
-
+int economySize = 0;
+int businessSize = 0;
 
 
 int main(int argc, char *argv[]){
@@ -114,8 +115,10 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time); //scan the data from the file
         if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
             enqueue(businessQueue, customer);
+            businessSize++;
         }else{
             enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
+            economySize++;
         }
     }
     fclose(file);
@@ -142,13 +145,13 @@ void* customerThread(void* param){
     if (customer->class_type == 1) {
         pthread_mutex_lock(&businessQueueMutex);
         enqueue(businessQueue, *customer);
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessQueue->size);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessSize);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&businessQueueMutex);
     } else {
         pthread_mutex_lock(&economyQueueMutex);
         enqueue(economyQueue, *customer);
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economyQueue->size);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economySize);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&economyQueueMutex);
     }
