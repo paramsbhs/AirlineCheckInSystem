@@ -64,11 +64,11 @@ int main(int argc, char *argv[]){
     pthread_attr_t clerkattr; //thread attributes
     pthread_attr_init(&clerkattr); //get the thread attributes
     int i, rc;
-    for(i = 1; i <= CLERKS; i++){
+    for(i = 0; i < CLERKS; i++){
         int* clerk_id = (int*)malloc(sizeof(int)); //allocate memory for the clerk id
-        *clerk_id = i; //set the clerk id to i
+        *clerk_id = i+1; //set the clerk id to i
         if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, clerk_id))){ //Create the clerk threads, Sample Code (pthread_create.c)
-            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
+            fprintf(stderr, "error: pthread_create, rc: %d\n", i+1);
             return EXIT_FAILURE;
         }
     }
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]){
     while (current != NULL) {
         struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
-            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
+            fprintf(stderr, "error: pthread_create, rc: %d\n", j+1);
             return EXIT_FAILURE;
         }
         current = current->next;
@@ -91,18 +91,18 @@ int main(int argc, char *argv[]){
     while (current != NULL) {
         struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
-            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
+            fprintf(stderr, "error: pthread_create, rc: %d\n", j);
             return EXIT_FAILURE;
         }
         current = current->next;
         j++;
     }
 
-    for(int l = 0; l < CLERKS; l++){
-        pthread_join(clerkThreads[l], NULL); //Join the clerk threads
-    }
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
+    }
+    for(int l = 0; l < CLERKS; l++){
+        pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
 
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
@@ -113,7 +113,6 @@ int main(int argc, char *argv[]){
     free(economyQueue); //Free the economy queue
     free(businessQueue); //Free the business queue
 
-    sleep(3);
     return 0;
 }
 
@@ -194,6 +193,11 @@ void* customerThread(void* param){
         pthread_mutex_unlock(&businessQueueMutex);
         pthread_mutex_unlock(&economyQueueMutex);
     }
+    usleep(customer->service_time * 100000); 
+    pthread_mutex_lock(&waitingTimeMutex);
+    totalWaitingTime += (customer->service_time - customer->arrival_time);
+    pthread_mutex_unlock(&waitingTimeMutex);
+    pthread_cond_signal(&clerkAvailable);
 
     free(customer);
     return NULL;
