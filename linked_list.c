@@ -38,7 +38,7 @@ void enqueue(struct Queue* queue, struct Customer customerData) {
         queue->rear->next = node; //set the rear of the queue to the new node
         queue->rear = node; //set the rear of the queue to the new node
     }
-    queue->size++; //increment the size of the queue
+    // queue->size++; //increment the size of the queue
 }
 
 struct Customer dequeue(struct Queue* queue) {
