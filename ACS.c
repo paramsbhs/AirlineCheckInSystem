@@ -191,13 +191,13 @@ void* clerkThread(void* param) {
         int isBusinessCustomer = 0;
 
         pthread_mutex_lock(&businessQueueMutex);
-        if (!isQueueEmpty(businessQueue)) {
+        if (!isEmpty(businessQueue)) {
             customer = dequeue(businessQueue);
             isBusinessCustomer = 1;
         } else {
             pthread_mutex_unlock(&businessQueueMutex);
             pthread_mutex_lock(&economyQueueMutex);
-            if (!isQueueEmpty(economyQueue)) {
+            if (!isEmpty(economyQueue)) {
                 customer = dequeue(economyQueue);
             } else {
                 pthread_mutex_unlock(&economyQueueMutex);
