@@ -212,7 +212,7 @@ void* customerThread(void* param) {
     mutex, and returns NULL.
 */
 void* clerkThread(void* param) {
-    int clerk_id = *((int*)param);
+     int clerk_id = *((int*)param);
     free(param);
 
     while (TRUE) {
