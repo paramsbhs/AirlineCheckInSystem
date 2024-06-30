@@ -9,11 +9,12 @@
 void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *businessQueue, int *size);
 void* customerThread(void* param);
 void* clerkThread(void* param); 
-float getCurrentTime();
+double getCurrentSimulationTime();
 
 struct Queue *economyQueue;
 struct Queue *businessQueue;
 struct timeval start_time;
+
 
 #define QUEUE 2
 #define CLERKS 5
@@ -27,6 +28,7 @@ pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
 pthread_cond_t customerServed = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t waitingTimeMutex = PTHREAD_MUTEX_INITIALIZER;
 
+int size;
 int economySize = 0;
 int businessSize = 0;
 float totalWaitingTime = 0;
@@ -53,7 +55,6 @@ int main(int argc, char *argv[]){
     gettimeofday(&start_time, NULL);
     economyQueue = createQueue(); //Initialize the economy Queue
     businessQueue = createQueue(); //Initialize the business Queue
-    int size; //Initialize the size of the queue
 
     inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
 
@@ -240,9 +241,9 @@ double getCurrentSimulationTime() {
     struct timeval cur_time;
     double cur_secs, init_secs;
     
-    pthread_mutex_lock(&start_time_mtex);
+    pthread_mutex_lock(&waitingTimeMutex);
     init_secs = (start_time.tv_sec + (double) start_time.tv_usec / 1000000);
-    pthread_mutex_unlock(&start_time_mtex);
+    pthread_mutex_unlock(&waitingTimeMutex);
     
     gettimeofday(&cur_time, NULL);
     cur_secs = (cur_time.tv_sec + (double) cur_time.tv_usec / 1000000);
