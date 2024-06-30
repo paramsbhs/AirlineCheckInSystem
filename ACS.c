@@ -21,7 +21,6 @@ double getCurrentSimulationTime();
 struct Queue *economyQueue;
 struct Queue *businessQueue;
 struct timeval start_time;
-struct Clerk clerks[CLERKS];
 
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -189,11 +188,6 @@ void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
     free(param);
     usleep(100000); 
-    pthread_mutex_lock(&clerks->mutex);
-    clerks->is_available = 1;
-    pthread_cond_signal(&clerks->available);
-    pthread_mutex_unlock(&clerks->mutex);
-
     while (1) {
         struct Customer customer;
         int isBusinessCustomer = 0;
