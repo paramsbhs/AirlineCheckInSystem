@@ -157,14 +157,14 @@ void* customerThread(void* param){
     if (customer->class_type == 1) {
         pthread_mutex_lock(&businessQueueMutex);
         enqueue(businessQueue, *customer);
-        customer->arrivalTime = arrivalTime;
+        customer->arrival_time = arrivalTime;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessQueue->size);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&businessQueueMutex);
     } else {
         pthread_mutex_lock(&economyQueueMutex);
         enqueue(economyQueue, *customer);
-        customer->arrivalTime = arrivalTime;
+        customer->arrival_time = arrivalTime;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economyQueue->size);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&economyQueueMutex);
