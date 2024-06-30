@@ -188,7 +188,36 @@ void* customerThread(void* param) {
     mutex, and returns NULL.
 */
 void* clerkThread(void* param) {
-    
+        int clerk_id = *((int*)param);
+    free(param);
+
+    while (TRUE) {
+        pthread_mutex_lock(&businessQueueMutex);
+        pthread_mutex_lock(&economyQueueMutex);
+        while (isQueueEmpty(businessQueue) && isQueueEmpty(economyQueue)) {
+            pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
+            pthread_cond_wait(&clerkAvailable, &economyQueueMutex);
+        }
+
+        struct Customer customer;
+        if (!isQueueEmpty(businessQueue)) {
+            customer = dequeue(businessQueue);
+            businessSize--;
+        } else {
+            customer = dequeue(economyQueue);
+            economySize--;
+        }
+        pthread_mutex_unlock(&economyQueueMutex);
+        pthread_mutex_unlock(&businessQueueMutex);
+
+        double start_time = getCurrentSimulationTime();
+        printf("Clerk %d starts serving customer %d at time %.2f\n", clerk_id, customer.user_id, start_time);
+        usleep(customer.service_time * 100000);
+        double end_time = getCurrentSimulationTime();
+        printf("Clerk %d finishes serving customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
+        pthread_cond_signal(&customerServed);
+    }
+    pthread_exit(NULL);
 }
 
 double getCurrentSimulationTime() {
