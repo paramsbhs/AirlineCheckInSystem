@@ -86,15 +86,18 @@ int main(int argc, char *argv[]){
         current = current->next;
         j++;
     }
-
-
+    printf("\n\n\n\n");
+    displayQueue(economyQueue); 
+    displayQueue(businessQueue); 
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
     for(int l = 0; l < CLERKS; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
-
+    printf("\n\n\n\n");
+    displayQueue(economyQueue);
+    displayQueue(businessQueue); 
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
 
