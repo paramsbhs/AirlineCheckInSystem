@@ -70,6 +70,7 @@ int main(int argc, char *argv[]){
     int i, rc;
     for(i = 0; i < CLERKS; i++){
         int* clerk_id = (int*)malloc(sizeof(int)); //allocate memory for the clerk id
+        printf("Clerk %d started working!\n", i+1); //print the clerk id (1-5)
         *clerk_id = i+1; //set the clerk id to i
         if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, clerk_id))){ //Create the clerk threads, Sample Code (pthread_create.c)
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
@@ -87,6 +88,7 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         current = current->next;
+        j++;
     }
 
     current = businessQueue->front;
@@ -97,6 +99,7 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         current = current->next;
+        j++;
     }
 
     for(int k = 0; k < size; k++){
