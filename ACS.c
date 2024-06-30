@@ -158,7 +158,7 @@ void* customerThread(void* param){
     usleep(customer->arrival_time * 100000);
 
     // Record arrival time
-    float arrivalTime = getCurrentSimulationTime()();
+    float arrivalTime = getCurrentSimulationTime();
     printf("A customer arrives: customer ID %2d. \n", customer->user_id);
 
     // Determine which queue to enter
@@ -201,13 +201,13 @@ void* customerThread(void* param){
     // Update waiting time statistics
     pthread_mutex_lock(&waitingTimeMutex);
     totalWaitingTime += waitingTime;
-    totalCustomers++;
+    size++;
     if (customer->class_type == 1) {
         businessWaitingTime += waitingTime;
-        businessCustomers++;
+        businessSize++;
     } else {
         economyWaitingTime += waitingTime;
-        economyCustomers++;
+        economySize++;
     }
     pthread_mutex_unlock(&waitingTimeMutex);
 
@@ -216,8 +216,8 @@ void* customerThread(void* param){
 
     // Service finished
     float serviceEndTime = getCurrentSimulationTime();
-    printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n",
-           serviceEndTime, customer->user_id, customer->clerk_id);
+    printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d. \n",
+           serviceEndTime, customer->user_id);
 
     // Signal that the customer has been served
     pthread_cond_signal(&customerServed);
