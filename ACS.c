@@ -24,6 +24,7 @@ struct timeval start_time;
 
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t clerkMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
 pthread_cond_t customerServed = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t waitingTimeMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -109,10 +110,10 @@ int main(int argc, char *argv[]){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
 
-    pthread_mutex_lock(&clerkAvailable);
+    pthread_mutex_lock(&clerkMutex);
     customersRemaining = 0;
     pthread_cond_broadcast(&clerkAvailable);
-    pthread_mutex_unlock(&clerkAvailable);
+    pthread_mutex_unlock(&clerkMutex);
 
     for(int l = 0; l < CLERKS; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
