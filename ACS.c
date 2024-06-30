@@ -194,13 +194,13 @@ void* clerkThread(void* param) {
     while (TRUE) {
         pthread_mutex_lock(&businessQueueMutex);
         pthread_mutex_lock(&economyQueueMutex);
-        while (isQueueEmpty(businessQueue) && isQueueEmpty(economyQueue)) {
+        while (isEmpty(businessQueue) && isEmpty(economyQueue)) {
             pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
             pthread_cond_wait(&clerkAvailable, &economyQueueMutex);
         }
 
         struct Customer customer;
-        if (!isQueueEmpty(businessQueue)) {
+        if (!isEmpty(businessQueue)) {
             customer = dequeue(businessQueue);
             businessSize--;
         } else {
