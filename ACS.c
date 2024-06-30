@@ -116,6 +116,12 @@ int main(int argc, char *argv[]){
     free(economyQueue); //Free the economy queue
     free(businessQueue); //Free the business queue
 
+    double total_simulation_time = getCurrentSimulationTime();
+    printf("Simulation took %.2f seconds\n", total_simulation_time);
+    printf("The average waiting time for all customers in the system is: %.2f seconds. \n", totalWaitingTime / size);
+    printf("The average waiting time for all business-class customers is: %.2f seconds. \n", businessWaitingTime / businessSize);
+    printf("The average waiting time for all economy-class customers is: %.2f seconds. \n", economyWaitingTime / economySize);
+
     return 0;
 }
 
@@ -224,6 +230,7 @@ void* clerkThread(void* param) {
 double getCurrentSimulationTime() {
     struct timeval cur_time;
     gettimeofday(&cur_time, NULL);
-    return (cur_time.tv_sec - start_time.tv_sec) + 
-           (cur_time.tv_usec - start_time.tv_usec) / 1000000.0;
+    double elapsedTime = (cur_time.tv_sec - start_time.tv_sec) * 1000.0;
+    elapsedTime += (cur_time.tv_usec - start_time.tv_usec) / 1000.0;
+    return elapsedTime / 1000.0;
 }
