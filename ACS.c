@@ -81,8 +81,7 @@ int main(int argc, char *argv[]){
     pthread_attr_init(&customerattr);
     struct Node *current = economyQueue->front;
     while (current != NULL) {
-        struct Customer *customer = (struct Customer *)malloc(sizeof(struct Customer));
-        *customer = &current->customerData;
+        struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[customer->user_id -1], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
@@ -92,8 +91,7 @@ int main(int argc, char *argv[]){
 
     current = businessQueue->front;
     while (current != NULL) {
-        struct Customer *customer = (struct Customer *)malloc(sizeof(struct Customer));
-        *customer = &current->customerData;
+        struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[customer->user_id - 1], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
