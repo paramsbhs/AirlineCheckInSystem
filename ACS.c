@@ -152,39 +152,36 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     for processing, releases the queue mutex, and 
     returns NULL.
 */
-void* customerThread(void* param){
-       struct Customer* customer = (struct Customer*)param;
+void* customerThread(void* param) {
+    struct Customer* customer = (struct Customer*)param;
 
     // Simulate arrival time
     usleep(customer->arrival_time * 100000);
 
     // Record arrival time
-    float arrivalTime = getCurrentSimulationTime();
+    double arrivalTime = getCurrentSimulationTime();
     printf("A customer arrives: customer ID %2d. \n", customer->user_id);
 
     // Determine which queue to enter
     pthread_mutex_t* queueMutex;
     struct Queue* queue;
-    int* queueSize;
     int queueId;
 
     if (customer->class_type == 1) {
         queueMutex = &businessQueueMutex;
         queue = businessQueue;
-        queueSize = &businessSize;
         queueId = 1;
     } else {
         queueMutex = &economyQueueMutex;
         queue = economyQueue;
-        queueSize = &economySize;
         queueId = 0;
     }
 
     // Enter the queue
     pthread_mutex_lock(queueMutex);
     enqueue(queue, *customer);
-    (*queueSize)++;
-    printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", queueId, *queueSize);
+    int queueSize = queue->size; // Get the current size from the queue
+    printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", queueId, queueSize);
     pthread_cond_signal(&clerkAvailable);
     pthread_mutex_unlock(queueMutex);
 
