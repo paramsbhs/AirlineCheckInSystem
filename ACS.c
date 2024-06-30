@@ -53,7 +53,9 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
+    usleep(100000); // 0.1 second delay
     gettimeofday(&start_time, NULL);
+    
     economyQueue = createQueue(); //Initialize the economy Queue
     businessQueue = createQueue(); //Initialize the business Queue
 
@@ -208,10 +210,10 @@ void* clerkThread(void* param) {
         }
 
         double start_time = getCurrentSimulationTime();
-        double wait_time = start_time - customer.arrival_time / 10.0;
+        double wait_time = start_time - (customer.arrival_time / 10.0);
+        printf("Debug: arrival_time=%.2f, wait_time=%.2f\n", customer.arrival_time / 10.0, wait_time);
         printf("Customer %d (%s) spent %.2f seconds waiting before being served\n", customer.user_id, 
                 isBusinessCustomer ? "Business" : "Economy", wait_time);
-
         printf("Clerk %d starts taking care of customer %d\n", clerk_id, customer.user_id);
         usleep(customer.service_time * 100000); // Service time in tenths of a second
         double end_time = getCurrentSimulationTime();
@@ -223,5 +225,6 @@ void* clerkThread(void* param) {
 double getCurrentSimulationTime() {
     struct timeval cur_time;
     gettimeofday(&cur_time, NULL);
-    return (cur_time.tv_sec - start_time.tv_sec) + (cur_time.tv_usec - start_time.tv_usec) / 1000000.0;
+    return (cur_time.tv_sec - start_time.tv_sec) + 
+           (cur_time.tv_usec - start_time.tv_usec) / 1000000.0;
 }
