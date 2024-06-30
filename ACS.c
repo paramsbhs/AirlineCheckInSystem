@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
     pthread_attr_init(&customerattr);
     int j, rc2;
     for(j = 0; j < size; j++){
-        struct Customer *customer = dequeue(economyQueue); //dequeue the economy queue
+        struct Customer customer = dequeue(economyQueue); //dequeue the economy queue
         if(customer == NULL){
             customer = dequeue(businessQueue); //dequeue the business queue
         }
