@@ -87,8 +87,6 @@ int main(int argc, char *argv[]){
         j++;
     }
 
-    displayQueue(economyQueue);
-    displayQueue(businessQueue); 
 
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
@@ -99,6 +97,9 @@ int main(int argc, char *argv[]){
 
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
+
+    displayQueue(economyQueue);
+    displayQueue(businessQueue); 
 
     free(economyQueue); //Free the economy queue
     free(businessQueue); //Free the business queue
