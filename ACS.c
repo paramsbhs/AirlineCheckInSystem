@@ -114,7 +114,7 @@ int main(int argc, char *argv[]){
 
     double total_simulation_time = getCurrentSimulationTime();
     printf("Simulation took %.2f seconds\n", total_simulation_time);
-    printf("The average waiting time for all customers in the system is: %.2f seconds. \n", totalWaitingTime / size);
+    printf("The average waiting time for all customers in the system is: %.2f seconds. \n", (businessWaitingTime + economyWaitingTime) / size);
     printf("The average waiting time for all business-class customers is: %.2f seconds. \n", businessWaitingTime / businessSize);
     printf("The average waiting time for all economy-class customers is: %.2f seconds. \n", economyWaitingTime / economySize);
 
@@ -179,6 +179,7 @@ void* customerThread(void* param) {
         pthread_mutex_lock(&businessQueueMutex);
         pthread_mutex_lock(&waitingTimeMutex);
         printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
+        businessWaitingTime += current_time - (customer->arrival_time / 10.0);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&waitingTimeMutex);
         pthread_mutex_unlock(&businessQueueMutex);
@@ -186,6 +187,7 @@ void* customerThread(void* param) {
         pthread_mutex_lock(&economyQueueMutex);
         pthread_mutex_lock(&waitingTimeMutex);
         printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
+        economyWaitingTime += current_time - (customer->arrival_time / 10.0);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&waitingTimeMutex);
         pthread_mutex_unlock(&economyQueueMutex);
