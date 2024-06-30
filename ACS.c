@@ -22,13 +22,7 @@ struct Queue *businessQueue;
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t waitingTimeMutex = PTHREAD_MUTEX_INITIALIZER;
 
-float totalWaitingTime = 0;
-float businessWaitingTime = 0;
-float economyWaitingTime = 0;
-int businessCustomerCount = 0;
-int economyCustomerCount = 0;
 
 
 
@@ -93,14 +87,9 @@ int main(int argc, char *argv[]){
     for(int l = 0; l < CLERKS; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
-    float avgWaitingTime = totalWaitingTime / size;
-    float avgBusinessWaitingTime = businessCustomerCount ? (businessWaitingTime / businessCustomerCount) : 0;
-    float avgEconomyWaitingTime = economyCustomerCount ? (economyWaitingTime / economyCustomerCount) : 0;
 
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
-    pthread_mutex_destroy(&waitingTimeMutex); // Destroy the waiting time mutex
-
 
     free(economyQueue); //Free the economy queue
     free(businessQueue); //Free the business queue
@@ -150,21 +139,15 @@ void* customerThread(void* param){
 
     printf("A customer arrives: customer ID %2d. \n", customer->user_id);
 
-    struct timeval arrivalTime;
-    gettimeofday(&arrivalTime, NULL);
-
-
     if (customer->class_type == 1) {
         pthread_mutex_lock(&businessQueueMutex);
         enqueue(businessQueue, *customer);
-        customer->arrival_time = arrivalTime;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessQueue->size);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&businessQueueMutex);
     } else {
         pthread_mutex_lock(&economyQueueMutex);
         enqueue(economyQueue, *customer);
-        customer->arrival_time = arrivalTime;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economyQueue->size);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&economyQueueMutex);
