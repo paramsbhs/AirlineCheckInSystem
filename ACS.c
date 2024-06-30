@@ -98,9 +98,6 @@ int main(int argc, char *argv[]){
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
 
-    displayQueue(economyQueue);
-    displayQueue(businessQueue); 
-
     free(economyQueue); //Free the economy queue
     free(businessQueue); //Free the business queue
 
@@ -154,6 +151,7 @@ void* customerThread(void* param){
         enqueue(businessQueue, *customer);
         businessSize++;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessSize);
+        printf("Customer ID: %d, Class: %d, Arrival Time: %d, Service Time: %d\n", customer->customerData.user_id, customer->customerData.class_type, customer->customerData.arrival_time, customer->customerData.service_time);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&businessQueueMutex);
     } else {
@@ -161,6 +159,7 @@ void* customerThread(void* param){
         enqueue(economyQueue, *customer);
         economySize++;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economySize);
+        printf("Customer ID: %d, Class: %d, Arrival Time: %d, Service Time: %d\n", customer->customerData.user_id, customer->customerData.class_type, customer->customerData.arrival_time, customer->customerData.service_time);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&economyQueueMutex);
     }
