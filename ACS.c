@@ -59,7 +59,7 @@ int main(int argc, char *argv[]){
     int j = 0;
     struct Node *current = economyQueue->front;
     while (current != NULL) {
-        struct Customer *customer = &current->data;
+        struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]){
 
     current = businessQueue->front;
     while (current != NULL) {
-        struct Customer *customer = &current->data;
+        struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
