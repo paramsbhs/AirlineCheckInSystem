@@ -90,7 +90,7 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         current = current->next;
-        j++
+        j++;
     }
 
     current = businessQueue->front;
