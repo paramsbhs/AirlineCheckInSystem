@@ -178,7 +178,7 @@ void* customerThread(void* param) {
 
     float serviceEndTime = getCurrentTime();
     printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n",
-           serviceEndTime, customer->user_id, customer->clerk_id);
+           serviceEndTime, customer->user_id, 101);
 
     pthread_cond_signal(&customerServed);
 
@@ -218,7 +218,7 @@ void* clerkThread(void* param) {
             }
         }
 
-        customer->clerk_id = *clerk_id;
+        customer->clerk_id = 1;
         dequeue(queue);
         (*queueSize)--;
 
