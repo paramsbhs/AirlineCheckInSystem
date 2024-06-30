@@ -218,7 +218,7 @@ void* clerkThread(void* param) {
             }
         }
 
-        customer->clerk_id = 1;
+
         dequeue(queue);
         (*queueSize)--;
 
