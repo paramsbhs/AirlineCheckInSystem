@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
     struct Node *current = economyQueue->front;
     while (current != NULL) {
         struct Customer *customer = &current->customerData;
-        if ((rc = pthread_create(&customerThreads[customer->user_id -1], &customerattr, customerThread, customer))) { // Create the customer threads
+        if ((rc = pthread_create(&customerThreads[customer->user_id - 1], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
@@ -108,6 +108,9 @@ int main(int argc, char *argv[]){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
 
+    pthread_attr_destroy(&customerattr);
+    pthread_attr_destroy(&clerkattr);
+    pthread_mutex_destroy(&waitingTimeMutex); //Destroy the waiting time mutex
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
     pthread_cond_destroy(&customerServed);
