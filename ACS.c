@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
         int* clerk_id = (int*)malloc(sizeof(int)); //allocate memory for the clerk id
         *clerk_id = i+1; //set the clerk id to i
         if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, clerk_id))){ //Create the clerk threads, Sample Code (pthread_create.c)
-            fprintf(stderr, "error: pthread_create, rc: %d\n", i+1);
+            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
     }
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
     while (current != NULL) {
         struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
-            fprintf(stderr, "error: pthread_create, rc: %d\n", j+1);
+            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
         current = current->next;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]){
     while (current != NULL) {
         struct Customer *customer = &current->customerData;
         if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
-            fprintf(stderr, "error: pthread_create, rc: %d\n", j+1);
+            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
         current = current->next;
@@ -135,9 +135,13 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
         struct Customer customer;
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time); //scan the data from the file
         if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
+            pthread_mutex_lock(&businessQueueMutex);
             enqueue(businessQueue, customer);
+            pthread_mutex_unlock(&businessQueueMutex);
         }else{
+            pthread_mutex_lock(&economyQueueMutex);
             enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
+            pthread_mutex_unlock(&economyQueueMutex);
         }
     }
     fclose(file);
@@ -157,12 +161,21 @@ void* customerThread(void* param) {
     struct Customer* customer = (struct Customer*)param;
     usleep(customer->arrival_time * 100000);
     double current_time = getCurrentSimulationTime();
-    pthread_mutex_lock(&economyQueueMutex);
-    printf("Customer %d arrived at time %f\n", customer->user_id, current_time);
-    current_time += customer->service_time;
-    printf("Customer %d finished service at time %f\n", customer->user_id, current_time);
-    pthread_cond_signal(&clerkAvailable);
-    pthread_mutex_unlock(&economyQueueMutex);
+    if(customer->class_type == 1) {
+        pthread_mutex_lock(&businessQueueMutex);
+        printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
+        businessSize++;
+        printf("Customer %d entered queue %d, length of queue %d\n", customer->user_id, customer->class_type, businessSize);
+        pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&businessQueueMutex);
+    }else{
+        pthread_mutex_lock(&economyQueueMutex);
+        printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
+        economySize++;
+        printf("Customer %d entered queue %d, length of queue %d\n", customer->user_id, customer->class_type, economySize);
+        pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&economyQueueMutex);
+    }
 
     pthread_exit(NULL);
 }
