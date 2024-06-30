@@ -21,7 +21,7 @@ struct Queue* createQueue() { //implementation from https://www.geeksforgeeks.or
         return NULL;
     }
     queue->front = queue->rear = NULL; //set the front and rear of the queue to NULL
-    queue->size = 0; //set the size of the queue to 0
+    queue->size = -1; //set the size of the queue to 0
     return queue;
 }
 
