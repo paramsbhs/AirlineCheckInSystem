@@ -189,6 +189,14 @@ void* customerThread(void* param){
     // Self-serving
     usleep(customer->service_time * 100000); // sleep for the service time
 
+    // Get clerk ID
+    int clerk_id;
+    if (customer->class_type == 1) {
+        clerk_id = 1;
+    } else {
+        clerk_id = 0;
+    }
+
     // Print simulation time and update waiting time
     struct timeval current_time;
     gettimeofday(&current_time, NULL);
