@@ -186,17 +186,6 @@ void* customerThread(void* param){
         pthread_mutex_unlock(&economyQueueMutex);
     }
 
-    // Self-serving
-    usleep(customer->service_time * 100000); // sleep for the service time
-
-    // Get clerk ID
-    int clerk_id;
-    if (customer->class_type == 1) {
-        clerk_id = 1;
-    } else {
-        clerk_id = 0;
-    }
-
     // Print simulation time and update waiting time
     struct timeval current_time;
     gettimeofday(&current_time, NULL);
@@ -207,12 +196,6 @@ void* customerThread(void* param){
     } else {
         economyWaitingTime += waiting_time;
     }
-
-    // Print customer served by clerk
-    printf("Customer ID %2d is served by clerk %d. \n", customer->user_id, clerk_id);
-
-    // Signal clerk that service is finished
-    pthread_cond_signal(&customerServed);
 
     free(customer);
     return NULL;
