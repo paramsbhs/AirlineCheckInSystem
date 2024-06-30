@@ -84,24 +84,26 @@ int main(int argc, char *argv[]){
     pthread_attr_init(&customerattr);
     struct Node *current = economyQueue->front;
     while (current != NULL) {
-        struct Customer *customer = &current->customerData;
-        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
+        struct Customer *customer = (struct Customer *)malloc(sizeof(struct Customer)); // Allocate memory for customer data
+        memcpy(customer, &current->customerData, sizeof(struct Customer)); // Copy customer data
+        if ((rc = pthread_create(&customerThreads[customer->user_id - 1], &customerattr, customerThread, customer))) {
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
+        printf("Customer %d arrived at time %.2f\n", customer->user_id, getCurrentSimulationTime());
         current = current->next;
-        j++;
     }
 
     current = businessQueue->front;
     while (current != NULL) {
-        struct Customer *customer = &current->customerData;
-        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
+        struct Customer *customer = (struct Customer *)malloc(sizeof(struct Customer)); // Allocate memory for customer data
+        memcpy(customer, &current->customerData, sizeof(struct Customer)); // Copy customer data
+        if ((rc = pthread_create(&customerThreads[customer->user_id - 1], &customerattr, customerThread, customer))) {
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
+        printf("Customer %d arrived at time %.2f\n", customer->user_id, getCurrentSimulationTime());
         current = current->next;
-        j++;
     }
 
     for(int k = 0; k < size; k++){
