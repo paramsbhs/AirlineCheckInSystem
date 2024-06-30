@@ -184,7 +184,7 @@ void* customerThread(void* param) {
 */
 void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
-    printf("Clerk %d started working!\n", i+1); //print the clerk id (1-5)
+    printf("Clerk %d started working!\n", clerk_id); //print the clerk id (1-5)
     free(param);
     
 
