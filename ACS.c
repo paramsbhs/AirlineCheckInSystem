@@ -35,7 +35,7 @@ int businessSize = 0;
 float totalWaitingTime = 0;
 float businessWaitingTime = 0;
 float economyWaitingTime = 0;
-
+int customersRemaining;
 
 
 int main(int argc, char *argv[]){
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]){
     businessQueue = createQueue(); //Initialize the business Queue
 
     inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
-    int customersRemaining = size;
+    customersRemaining = size;
 
     pthread_t clerkThreads[CLERKS]; // Initialize the clerk threads
     pthread_t customerThreads[size]; // Initialize the customer threads
