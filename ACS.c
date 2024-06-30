@@ -158,9 +158,9 @@ void* customerThread(void* param) {
     usleep(customer->arrival_time * 100000);
     double current_time = getCurrentSimulationTime();
     pthread_mutex_lock(&economyQueueMutex);
-    printf("Customer %d arrived at time %d\n", customer->user_id, current_time);
+    printf("Customer %d arrived at time %f\n", customer->user_id, current_time);
     current_time += customer->service_time;
-    printf("Customer %d finished service at time %d\n", customer->user_id, current_time);
+    printf("Customer %d finished service at time %f\n", customer->user_id, current_time);
     pthread_cond_signal(&clerkAvailable);
     pthread_mutex_unlock(&economyQueueMutex);
 
