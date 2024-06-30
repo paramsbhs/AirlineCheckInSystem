@@ -217,9 +217,8 @@ void* clerkThread(void* param) {
 
         double start_time = getCurrentSimulationTime();
         double wait_time = start_time - (customer.arrival_time / 10.0);
-        printf("Customer %d (%s) spent %.2f seconds waiting before being served\n", customer.user_id, 
-                isBusinessCustomer ? "Business" : "Economy", wait_time);
-        printf("Clerk %d starts taking care of customer %d\n", clerk_id, customer.user_id);
+        printf("Customer %d spent %.2f seconds waiting before being served\n", customer.user_id, wait_time);
+        printf("Clerk %d started taking care of customer %d\n", clerk_id, customer.user_id);
         usleep(customer.service_time * 100000); // Service time in tenths of a second
         double end_time = getCurrentSimulationTime();
         printf("Clerk %d finishes taking care of customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
