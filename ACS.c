@@ -24,7 +24,6 @@ struct timeval start_time;
 
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t clerkMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
 pthread_cond_t customerServed = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t waitingTimeMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -35,7 +34,7 @@ int businessSize = 0;
 float totalWaitingTime = 0;
 float businessWaitingTime = 0;
 float economyWaitingTime = 0;
-int customersRemaining;
+
 
 
 int main(int argc, char *argv[]){
@@ -61,7 +60,6 @@ int main(int argc, char *argv[]){
     businessQueue = createQueue(); //Initialize the business Queue
 
     inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
-    customersRemaining = size;
 
     pthread_t clerkThreads[CLERKS]; // Initialize the clerk threads
     pthread_t customerThreads[size]; // Initialize the customer threads
@@ -110,12 +108,7 @@ int main(int argc, char *argv[]){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
 
-    pthread_mutex_lock(&clerkMutex);
-    customersRemaining = 0;
-    pthread_cond_broadcast(&clerkAvailable);
-    pthread_mutex_unlock(&clerkMutex);
-
-    for(int l = 0; l < CLERKS; l++){
+    for(int l = 0; l < CLERKS-1; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
 
@@ -182,25 +175,22 @@ void* customerThread(void* param) {
     struct Customer* customer = (struct Customer*)param;
     usleep(customer->arrival_time * 100000);
     double current_time = getCurrentSimulationTime();
-    pthread_mutex_lock(&waitingTimeMutex);
-    printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
-    pthread_mutex_unlock(&waitingTimeMutex);
-
     if(customer->class_type == 1) {
         pthread_mutex_lock(&businessQueueMutex);
-        enqueue(businessQueue, *customer);
+        pthread_mutex_lock(&waitingTimeMutex);
+        printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
+        pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&waitingTimeMutex);
         pthread_mutex_unlock(&businessQueueMutex);
-    } else {
+    }else{
         pthread_mutex_lock(&economyQueueMutex);
-        enqueue(economyQueue, *customer);
+        pthread_mutex_lock(&waitingTimeMutex);
+        printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
+        pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&waitingTimeMutex);
         pthread_mutex_unlock(&economyQueueMutex);
     }
 
-    pthread_mutex_lock(&clerkMutex);
-    pthread_cond_signal(&clerkAvailable);
-    pthread_mutex_unlock(&clerkMutex);
-
-    free(customer);
     pthread_exit(NULL);
 }
 
@@ -212,22 +202,12 @@ void* customerThread(void* param) {
     mutex, and returns NULL.
 */
 void* clerkThread(void* param) {
-     int clerk_id = *((int*)param);
+    int clerk_id = *((int*)param);
     free(param);
-
-    while (TRUE) {
+    usleep(100000); 
+    while (1) {
         struct Customer customer;
         int isBusinessCustomer = 0;
-
-        pthread_mutex_lock(&clerkMutex);
-        while (isEmpty(businessQueue) && isEmpty(economyQueue) && customersRemaining > 0) {
-            pthread_cond_wait(&clerkAvailable, &clerkMutex);
-        }
-        if (customersRemaining == 0 && isEmpty(businessQueue) && isEmpty(economyQueue)) {
-            pthread_mutex_unlock(&clerkMutex);
-            break;
-        }
-        pthread_mutex_unlock(&clerkMutex);
 
         pthread_mutex_lock(&businessQueueMutex);
         if (!isEmpty(businessQueue)) {
@@ -256,16 +236,6 @@ void* clerkThread(void* param) {
         usleep(customer.service_time * 100000); // Service time in tenths of a second
         double end_time = getCurrentSimulationTime();
         printf("Clerk %d finishes taking care of customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
-
-        pthread_mutex_lock(&waitingTimeMutex);
-        totalWaitingTime += wait_time;
-        if (isBusinessCustomer) {
-            businessWaitingTime += wait_time;
-        } else {
-            economyWaitingTime += wait_time;
-        }
-        customersRemaining--;
-        pthread_mutex_unlock(&waitingTimeMutex);
     }
     pthread_exit(NULL);
 }
