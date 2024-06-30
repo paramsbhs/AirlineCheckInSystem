@@ -210,6 +210,7 @@ void* clerkThread(void* param) {
         pthread_mutex_lock(&economyQueueMutex);
 
         while (businessQueue->size == 0 && economyQueue->size == 0) {
+            printf("Clerk ID %1d is ready and waiting for a customer.\n", clerk_id);
             // Wait for a customer to arrive
             pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
             pthread_cond_wait(&clerkAvailable, &economyQueueMutex);
