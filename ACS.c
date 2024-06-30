@@ -56,18 +56,27 @@ int main(int argc, char *argv[]){
 
     pthread_attr_t customerattr;
     pthread_attr_init(&customerattr);
-    int j, rc2;
-    for(j = 0; j < size; j++){
-        struct Customer customer = dequeue(economyQueue); //dequeue the economy queue
-        if(customer == NULL){
-            customer = dequeue(businessQueue); //dequeue the business queue
+    int j = 0;
+    struct Node *current = economyQueue->front;
+    while (current != NULL) {
+        struct Customer *customer = &current->data;
+        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
+            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
+            return EXIT_FAILURE;
         }
-        if(customer != NULL){
-            if((rc2 = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))){ //Create the customer threads, Sample Code (pthread_create.c)
-                fprintf(stderr, "error: pthread_create, rc: %d\n", rc2);
-                return EXIT_FAILURE;
-            }
+        current = current->next;
+        j++;
+    }
+
+    current = businessQueue->front;
+    while (current != NULL) {
+        struct Customer *customer = &current->data;
+        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
+            fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
+            return EXIT_FAILURE;
         }
+        current = current->next;
+        j++;
     }
 
     for(int k = 0; k < size; k++){
