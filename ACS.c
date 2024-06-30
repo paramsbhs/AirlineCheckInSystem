@@ -79,27 +79,26 @@ int main(int argc, char *argv[]){
 
     pthread_attr_t customerattr;
     pthread_attr_init(&customerattr);
-    int j = 0;
     struct Node *current = economyQueue->front;
     while (current != NULL) {
-        struct Customer *customer = &current->customerData;
-        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
+        struct Customer *customer = (struct Customer *)malloc(sizeof(struct Customer));
+        *customer = &current->customerData;
+        if ((rc = pthread_create(&customerThreads[customer->user_id -1], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
         current = current->next;
-        j++;
     }
 
     current = businessQueue->front;
     while (current != NULL) {
-        struct Customer *customer = &current->customerData;
-        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
+        struct Customer *customer = (struct Customer *)malloc(sizeof(struct Customer));
+        *customer = &current->customerData;
+        if ((rc = pthread_create(&customerThreads[customer->user_id - 1], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
         current = current->next;
-        j++;
     }
 
     for(int k = 0; k < size; k++){
