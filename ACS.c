@@ -90,7 +90,6 @@ int main(int argc, char *argv[]){
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
-        printf("Customer %d arrived at time %.2f\n", customer->user_id, getCurrentSimulationTime());
         current = current->next;
     }
 
@@ -102,7 +101,6 @@ int main(int argc, char *argv[]){
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
-        printf("Customer %d arrived at time %.2f\n", customer->user_id, getCurrentSimulationTime());
         current = current->next;
     }
 
