@@ -165,32 +165,5 @@ void* customerThread(void* param){
     mutex, and returns NULL.
 */
 void* clerkThread(void* param){
-    int clerk_id = *(int*)param;
-    while(TRUE){
-        int isIdle = TRUE;
-        struct Customer customer;
-        if(clerk_id < QUEUE){
-            pthread_mutex_lock(&businessQueueMutex);
-            if(!isEmpty(businessQueue)){
-                customer = dequeue(businessQueue);
-                isIdle = FALSE;
-            }
-            pthread_mutex_unlock(&businessQueueMutex);
-        }else{
-            pthread_mutex_lock(&economyQueueMutex);
-            if(!isEmpty(economyQueue)){
-                customer = dequeue(economyQueue);
-                isIdle = FALSE;
-            }
-            pthread_mutex_unlock(&economyQueueMutex);
-        }
-        if(isIdle){
-            printf("Clerk %d is idle.\n", clerk_id);
-            sleep(IDLE);
-        }else{
-            printf("Clerk %d serves a customer: start time %2d, service time %2d, end time %2d.\n", clerk_id, customer.arrival_time, customer.service_time, customer.arrival_time + customer.service_time);
-            usleep(customer.service_time * 100000); // Convert to microseconds
-        }
-    }
-    return NULL;
+
 }
