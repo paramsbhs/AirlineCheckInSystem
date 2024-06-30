@@ -73,7 +73,7 @@ int main(int argc, char *argv[]){
     for(i = 0; i < CLERKS; i++){
         int* clerk_id = (int*)malloc(sizeof(int)); //allocate memory for the clerk id
         *clerk_id = i+1; //set the clerk id to i
-        if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, &clerks[i]))){ //Create the clerk threads, Sample Code (pthread_create.c)
+        if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, &clerk_id))){ //Create the clerk threads, Sample Code (pthread_create.c)
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
