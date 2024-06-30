@@ -80,9 +80,10 @@ int main(int argc, char *argv[]){
     pthread_attr_t customerattr;
     pthread_attr_init(&customerattr);
     struct Node *current = economyQueue->front;
+    int j = 0;
     while (current != NULL) {
         struct Customer *customer = &current->customerData;
-        if ((rc = pthread_create(&customerThreads[customer->user_id -1], &customerattr, customerThread, customer))) { // Create the customer threads
+        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
@@ -92,7 +93,7 @@ int main(int argc, char *argv[]){
     current = businessQueue->front;
     while (current != NULL) {
         struct Customer *customer = &current->customerData;
-        if ((rc = pthread_create(&customerThreads[customer->user_id - 1], &customerattr, customerThread, customer))) { // Create the customer threads
+        if ((rc = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))) { // Create the customer threads
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
