@@ -170,13 +170,17 @@ void* customerThread(void* param) {
     double current_time = getCurrentSimulationTime();
     if(customer->class_type == 1) {
         pthread_mutex_lock(&businessQueueMutex);
+        pthread_mutex_lock(&waitingTimeMutex);
         printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
         pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&waitingTimeMutex);
         pthread_mutex_unlock(&businessQueueMutex);
     }else{
         pthread_mutex_lock(&economyQueueMutex);
+        pthread_mutex_lock(&waitingTimeMutex);
         printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
         pthread_cond_signal(&clerkAvailable);
+        pthread_mutex_unlock(&waitingTimeMutex);
         pthread_mutex_unlock(&economyQueueMutex);
     }
 
@@ -217,6 +221,9 @@ void* clerkThread(void* param) {
 
         double start_time = getCurrentSimulationTime();
         double wait_time = start_time - (customer.arrival_time / 10.0);
+        if (wait_time < 0){
+            wait_time = 0;
+        }
         printf("Customer %d spent %.2f seconds waiting before being served\n", customer.user_id, wait_time);
         printf("Clerk %d started taking care of customer %d\n", clerk_id, customer.user_id);
         usleep(customer.service_time * 100000); // Service time in tenths of a second
