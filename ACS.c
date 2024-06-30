@@ -11,17 +11,17 @@ void* customerThread(void* param);
 void* clerkThread(void* param); 
 double getCurrentSimulationTime();
 
-struct Queue *economyQueue;
-struct Queue *businessQueue;
-struct timeval start_time;
-struct Clerk clerks[CLERKS];
-
 
 #define QUEUE 2
 #define CLERKS 5
 #define TRUE 1
 #define FALSE 0
 #define IDLE 0
+
+struct Queue *economyQueue;
+struct Queue *businessQueue;
+struct timeval start_time;
+struct Clerk clerks[CLERKS];
 
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -189,10 +189,10 @@ void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
     free(param);
     usleep(100000); 
-    pthread_mutex_lock(&clerk->mutex);
-    clerk->is_available = 1;
-    pthread_cond_signal(&clerk->available);
-    pthread_mutex_unlock(&clerk->mutex);
+    pthread_mutex_lock(&clerks->mutex);
+    clerks->is_available = 1;
+    pthread_cond_signal(&clerks->available);
+    pthread_mutex_unlock(&clerks->mutex);
 
     while (1) {
         struct Customer customer;
