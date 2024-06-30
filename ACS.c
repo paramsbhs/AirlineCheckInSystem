@@ -191,46 +191,37 @@ void* clerkThread(void* param) {
         int isBusinessCustomer = 0;
 
         pthread_mutex_lock(&businessQueueMutex);
-        if (!isEmpty(businessQueue)) {
+        if (!isQueueEmpty(businessQueue)) {
             customer = dequeue(businessQueue);
             isBusinessCustomer = 1;
+            pthread_mutex_unlock(&businessQueueMutex);
         } else {
             pthread_mutex_unlock(&businessQueueMutex);
             pthread_mutex_lock(&economyQueueMutex);
-            if (!isEmpty(economyQueue)) {
+            if (!isQueueEmpty(economyQueue)) {
                 customer = dequeue(economyQueue);
+                pthread_mutex_unlock(&economyQueueMutex);
             } else {
                 pthread_mutex_unlock(&economyQueueMutex);
-                pthread_mutex_unlock(&businessQueueMutex);
                 continue;
             }
-            pthread_mutex_unlock(&economyQueueMutex);
         }
-        pthread_mutex_unlock(&businessQueueMutex);
 
         double start_time = getCurrentSimulationTime();
-        printf("Clerk %d starts taking care of customer %d\n", clerk_id, customer.user_id);
-        usleep(customer.service_time * 100000);
-        double end_time = getCurrentSimulationTime();
-        printf("Clerk %d finishes taking care of customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
-
         double wait_time = start_time - customer.arrival_time / 10.0;
         printf("Customer %d (%s) spent %.2f seconds waiting before being served\n", customer.user_id, 
                 isBusinessCustomer ? "Business" : "Economy", wait_time);
+
+        printf("Clerk %d starts taking care of customer %d\n", clerk_id, customer.user_id);
+        usleep(customer.service_time * 100000); // Service time in tenths of a second
+        double end_time = getCurrentSimulationTime();
+        printf("Clerk %d finishes taking care of customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
     }
     pthread_exit(NULL);
 }
 
 double getCurrentSimulationTime() {
     struct timeval cur_time;
-    double cur_secs, init_secs;
-    
-    pthread_mutex_lock(&waitingTimeMutex);
-    init_secs = (start_time.tv_sec + (double) start_time.tv_usec / 1000000);
-    pthread_mutex_unlock(&waitingTimeMutex);
-    
     gettimeofday(&cur_time, NULL);
-    cur_secs = (cur_time.tv_sec + (double) cur_time.tv_usec / 1000000);
-    
-    return cur_secs - init_secs;
+    return (cur_time.tv_sec - start_time.tv_sec) + (cur_time.tv_usec - start_time.tv_usec) / 1000000.0;
 }
