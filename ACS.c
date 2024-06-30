@@ -212,7 +212,7 @@ void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
     free(param);
     usleep(100000); 
-    boolean notDone = TRUE;
+    int notDone = TRUE;
     while (notDone) {
         struct Customer customer;
         int isBusinessCustomer = 0;
