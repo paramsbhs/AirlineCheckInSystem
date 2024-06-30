@@ -87,6 +87,9 @@ int main(int argc, char *argv[]){
         j++;
     }
 
+    displayQueue(economyQueue); testing purposes
+    displayQueue(businessQueue); testing purposes
+
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
