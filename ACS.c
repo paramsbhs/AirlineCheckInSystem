@@ -173,26 +173,26 @@ void* customerThread(void* param){
         pthread_mutex_unlock(&economyQueueMutex); //unlock the economy queue mutex
     }
 
-    while (TRUE) {
-        pthread_mutex_lock(&economyQueueMutex); //lock the economy queue mutex
-        pthread_mutex_lock(&businessQueueMutex); //lock the business queue mutex
+    // while (TRUE) {
+    //     pthread_mutex_lock(&economyQueueMutex); //lock the economy queue mutex
+    //     pthread_mutex_lock(&businessQueueMutex); //lock the business queue mutex
         
-        if (businessQueue->front && businessQueue->front->customerData.user_id == customer->user_id) { //if the customer is in the business queue
-            pthread_mutex_unlock(&businessQueueMutex); //unlock the business queue mutex
-            pthread_mutex_unlock(&economyQueueMutex); //unlock the economy queue mutex
-            break;
-        } else if (economyQueue->front && economyQueue->front->customerData.user_id == customer->user_id) { //if the customer is in the economy queue
-            pthread_mutex_unlock(&businessQueueMutex); //unlock the business queue mutex
-            pthread_mutex_unlock(&economyQueueMutex); //unlock the economy queue mutex
-            break;
-        }
+    //     if (businessQueue->front && businessQueue->front->customerData.user_id == customer->user_id) { //if the customer is in the business queue
+    //         pthread_mutex_unlock(&businessQueueMutex); //unlock the business queue mutex
+    //         pthread_mutex_unlock(&economyQueueMutex); //unlock the economy queue mutex
+    //         break;
+    //     } else if (economyQueue->front && economyQueue->front->customerData.user_id == customer->user_id) { //if the customer is in the economy queue
+    //         pthread_mutex_unlock(&businessQueueMutex); //unlock the business queue mutex
+    //         pthread_mutex_unlock(&economyQueueMutex); //unlock the economy queue mutex
+    //         break;
+    //     }
 
-        pthread_cond_wait(&clerkAvailable, &economyQueueMutex);
-        pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
+    //     pthread_cond_wait(&clerkAvailable, &economyQueueMutex);
+    //     pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
         
-        pthread_mutex_unlock(&businessQueueMutex);
-        pthread_mutex_unlock(&economyQueueMutex);
-    }
+    //     pthread_mutex_unlock(&businessQueueMutex);
+    //     pthread_mutex_unlock(&economyQueueMutex);
+    // }
     usleep(customer->service_time * 100000); 
     pthread_mutex_lock(&waitingTimeMutex);
     totalWaitingTime += (customer->service_time - customer->arrival_time);
