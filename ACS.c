@@ -39,6 +39,16 @@ int main(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
 
+    if (pthread_mutex_init(&businessQueueMutex, NULL) != 0){ //mutex initialization
+        printf("\n mutex init failed\n");
+        return 1;
+    }
+
+    if (pthread_mutex_init(&economyQueueMutex, NULL) != 0){ //mutex initialization
+        printf("\n mutex init failed\n");
+        return 1;
+    }
+
     economyQueue = createQueue(); //Initialize the economy Queue
     businessQueue = createQueue(); //Initialize the business Queue
     int size; //Initialize the size of the queue
@@ -88,13 +98,12 @@ int main(int argc, char *argv[]){
         j++;
     }
 
-    for(int k = 0; k < size; k++){
-        pthread_join(customerThreads[k], NULL); //Join the customer threads
-    }
     for(int l = 0; l < CLERKS; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
-
+    for(int k = 0; k < size; k++){
+        pthread_join(customerThreads[k], NULL); //Join the customer threads
+    }
 
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
@@ -184,17 +193,6 @@ void* customerThread(void* param){
         
         pthread_mutex_unlock(&businessQueueMutex);
         pthread_mutex_unlock(&economyQueueMutex);
-    }
-
-    // Print simulation time and update waiting time
-    struct timeval current_time;
-    gettimeofday(&current_time, NULL);
-    float waiting_time = (current_time.tv_sec - customer->arrival_time) + (current_time.tv_usec - customer->arrival_time) / 1000000.0;
-    totalWaitingTime += waiting_time;
-    if (customer->class_type == 1) {
-        businessWaitingTime += waiting_time;
-    } else {
-        economyWaitingTime += waiting_time;
     }
 
     free(customer);
