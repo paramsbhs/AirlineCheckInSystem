@@ -154,7 +154,6 @@ void* customerThread(void* param){
         enqueue(businessQueue, *customer);
         businessSize++;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessSize);
-        printf("Customer ID: %d, Class: %d, Arrival Time: %d, Service Time: %d\n", customer->user_id, customer->class_type, customer->arrival_time, customer->service_time);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&businessQueueMutex);
     } else {
@@ -162,7 +161,6 @@ void* customerThread(void* param){
         enqueue(economyQueue, *customer);
         economySize++;
         printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economySize);
-        printf("Customer ID: %d, Class: %d, Arrival Time: %d, Service Time: %d\n", customer->user_id, customer->class_type, customer->arrival_time, customer->service_time);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&economyQueueMutex);
     }
