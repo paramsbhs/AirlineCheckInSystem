@@ -149,14 +149,14 @@ void* customerThread(void* param){
         pthread_mutex_lock(&businessQueueMutex);
         enqueue(businessQueue, *customer);
         businessSize++;
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessQueue->size);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 1, businessSize);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&businessQueueMutex);
     } else {
         pthread_mutex_lock(&economyQueueMutex);
         enqueue(economyQueue, *customer);
         economySize++;
-        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economyQueue->size);
+        printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", 0, economySize);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&economyQueueMutex);
     }
