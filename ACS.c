@@ -197,30 +197,32 @@ void* customerThread(void* param){
     sleeps for the service time, releases the queue
     mutex, and returns NULL.
 */
-void* clerkThread(void* param){
+void* clerkThread(void* param) {
     int clerk_id = *(int*)param;
     free(param);
 
     while (TRUE) {
+        struct Customer customer;
+        int queue_id = -1;
+
+        // Check if there are customers in the queues
         pthread_mutex_lock(&businessQueueMutex);
         pthread_mutex_lock(&economyQueueMutex);
 
-        // Wait until there are customers in the queues
         while (businessQueue->size == 0 && economyQueue->size == 0) {
+            // Wait for a customer to arrive
             pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
             pthread_cond_wait(&clerkAvailable, &economyQueueMutex);
         }
 
-        struct Customer customer;
-        int queue_id;
-
-        if (!(isEmpty(businessQueue)) && businessQueue->front->customerData.user_id == customer.user_id) {
+        // Serve business class customer first if available
+        if (businessQueue->size > 0) {
             customer = dequeue(businessQueue);
             businessSize--;
             queue_id = 1;
             printf("Clerk ID %1d starts serving a business customer: customer ID %2d. \n", clerk_id, customer.user_id);
             printf("A customer leaves a queue: the queue ID 1, and length of the queue %2d. \n", businessSize);
-        } else if (!(isEmpty(economyQueue)) && economyQueue->front->customerData.user_id == customer.user_id){
+        } else if (economyQueue->size > 0) {
             customer = dequeue(economyQueue);
             economySize--;
             queue_id = 0;
@@ -228,7 +230,6 @@ void* clerkThread(void* param){
             printf("A customer leaves a queue: the queue ID 0, and length of the queue %2d. \n", economySize);
         }
 
-        pthread_cond_broadcast(&clerkAvailable); // Notify customers that a clerk is available
         pthread_mutex_unlock(&businessQueueMutex);
         pthread_mutex_unlock(&economyQueueMutex);
 
@@ -240,9 +241,6 @@ void* clerkThread(void* param){
         pthread_mutex_lock(&waitingTimeMutex);
         totalWaitingTime += (customer.service_time - customer.arrival_time);
         pthread_mutex_unlock(&waitingTimeMutex);
-
-        // Signal customer service completion
-        pthread_cond_signal(&customerServed);
 
         // Check if all customers are served and exit if true
         pthread_mutex_lock(&businessQueueMutex);
@@ -257,5 +255,4 @@ void* clerkThread(void* param){
     }
 
     return NULL;
-
 }
