@@ -88,7 +88,6 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         current = current->next;
-        j++;
     }
 
     current = businessQueue->front;
@@ -99,7 +98,6 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         current = current->next;
-        j++;
     }
 
     for(int k = 0; k < size; k++){
