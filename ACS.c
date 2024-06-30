@@ -137,10 +137,12 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
         if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
             pthread_mutex_lock(&businessQueueMutex);
             enqueue(businessQueue, customer);
+            businessSize++;
             pthread_mutex_unlock(&businessQueueMutex);
         }else{
             pthread_mutex_lock(&economyQueueMutex);
             enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
+            economySize++;
             pthread_mutex_unlock(&economyQueueMutex);
         }
     }
@@ -164,15 +166,11 @@ void* customerThread(void* param) {
     if(customer->class_type == 1) {
         pthread_mutex_lock(&businessQueueMutex);
         printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
-        businessSize++;
-        printf("Customer %d entered queue %d, length of queue %d\n", customer->user_id, customer->class_type, businessSize);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&businessQueueMutex);
     }else{
         pthread_mutex_lock(&economyQueueMutex);
         printf("Customer %d arrived at time %.2f\n", customer->user_id, current_time);
-        economySize++;
-        printf("Customer %d entered queue %d, length of queue %d\n", customer->user_id, customer->class_type, economySize);
         pthread_cond_signal(&clerkAvailable);
         pthread_mutex_unlock(&economyQueueMutex);
     }
@@ -188,7 +186,7 @@ void* customerThread(void* param) {
     mutex, and returns NULL.
 */
 void* clerkThread(void* param) {
-        int clerk_id = *((int*)param);
+    int clerk_id = *((int*)param);
     free(param);
 
     while (TRUE) {
