@@ -42,38 +42,47 @@ int main(int argc, char *argv[]){
     //displayQueue(economyQueue); testing purposes
     //displayQueue(businessQueue); testing purposes
 
-    pthread_t clerk; //thread identifier
     pthread_attr_t clerkattr; //thread attributes
     pthread_attr_init(&clerkattr); //get the thread attributes
     int i, rc;
     for(i = 0; i < CLERKS; i++){
-        if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, NULL))){ //Create the clerk threads, Sample Code (pthread_create.c)
+        int* clerk_id = (int*)malloc(sizeof(int)); //allocate memory for the clerk id
+        *clerk_id = i; //set the clerk id to i
+        if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, clerk_id))){ //Create the clerk threads, Sample Code (pthread_create.c)
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
     }
 
-    pthread_t customer;
     pthread_attr_t customerattr;
     pthread_attr_init(&customerattr);
     int j, rc2;
     for(j = 0; j < size; j++){
-        if((rc2 = pthread_create(&customerThreads[j], &customerattr, customerThread, NULL))){ //Create the customer threads, Sample Code (pthread_create.c)
-            fprintf(stderr, "error: pthread_create, rc: %d\n", rc2);
-            return EXIT_FAILURE;
+        struct Customer *customer = dequeue(economyQueue); //dequeue the economy queue
+        if(customer == NULL){
+            customer = dequeue(businessQueue); //dequeue the business queue
+        }
+        if(customer != NULL){
+            if((rc2 = pthread_create(&customerThreads[j], &customerattr, customerThread, customer))){ //Create the customer threads, Sample Code (pthread_create.c)
+                fprintf(stderr, "error: pthread_create, rc: %d\n", rc2);
+                return EXIT_FAILURE;
+            }
         }
     }
 
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
-        free(economyQueue);
-        free(businessQueue);
     }
     for(int l = 0; l < CLERKS; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
+
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
+
+    free(economyQueue); //Free the economy queue
+    free(businessQueue); //Free the business queue
+
     sleep(3);
     return 0;
 }
@@ -94,10 +103,8 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time); //scan the data from the file
         if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
             enqueue(businessQueue, customer);
-            pthread_create(&customer.thread, NULL, customerThread, NULL); //create the customer thread
         }else{
             enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
-            pthread_create(&customer.thread, NULL, customerThread, NULL); //create the customer thread
         }
     }
     fclose(file);
@@ -135,6 +142,7 @@ void* customerThread(void* param){
         pthread_mutex_unlock(&economyQueueMutex);
     }
 
+    free(customer);
     return NULL;
 }
 
