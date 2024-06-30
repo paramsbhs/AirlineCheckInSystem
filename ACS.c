@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
     pthread_attr_t clerkattr; //thread attributes
     pthread_attr_init(&clerkattr); //get the thread attributes
     int i, rc;
-    for(i = 0; i < CLERKS; i++){
+    for(i = 1; i <= CLERKS; i++){
         int* clerk_id = (int*)malloc(sizeof(int)); //allocate memory for the clerk id
         *clerk_id = i; //set the clerk id to i
         if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, clerk_id))){ //Create the clerk threads, Sample Code (pthread_create.c)
@@ -198,7 +198,7 @@ void* customerThread(void* param){
     mutex, and returns NULL.
 */
 void* clerkThread(void* param){
-int clerk_id = *(int*)param;
+    int clerk_id = *(int*)param;
     free(param);
 
     while (TRUE) {
@@ -214,13 +214,13 @@ int clerk_id = *(int*)param;
         struct Customer customer;
         int queue_id;
 
-        if (businessSize > 0) {
+        if (!(isEmpty(businessQueue)) && businessQueue->front->customerData.user_id == customer.user_id) {
             customer = dequeue(businessQueue);
             businessSize--;
             queue_id = 1;
             printf("Clerk ID %1d starts serving a business customer: customer ID %2d. \n", clerk_id, customer.user_id);
             printf("A customer leaves a queue: the queue ID 1, and length of the queue %2d. \n", businessSize);
-        } else if (economySize > 0) {
+        } else if (!(isEmpty(economyQueue)) && economyQueue->front->customerData.user_id == customer.user_id){
             customer = dequeue(economyQueue);
             economySize--;
             queue_id = 0;
