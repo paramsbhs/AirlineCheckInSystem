@@ -60,6 +60,7 @@ int main(int argc, char *argv[]){
     businessQueue = createQueue(); //Initialize the business Queue
 
     inputFile(argv[1], economyQueue, businessQueue, &size); //Read the input file and store the data in its respective queues
+    int customersRemaining = size;
 
     pthread_t clerkThreads[CLERKS]; // Initialize the clerk threads
     pthread_t customerThreads[size]; // Initialize the customer threads
@@ -108,7 +109,12 @@ int main(int argc, char *argv[]){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
 
-    for(int l = 0; l < 4; l++){
+    pthread_mutex_lock(&clerkAvailable);
+    customersRemaining = 0;
+    pthread_cond_broadcast(&clerkAvailable);
+    pthread_mutex_unlock(&clerkAvailable);
+
+    for(int l = 0; l < CLERKS; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
 
