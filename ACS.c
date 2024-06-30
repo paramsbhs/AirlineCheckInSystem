@@ -22,9 +22,14 @@ struct Queue *businessQueue;
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t clerkAvailable = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t waitingTimeMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int economySize = 0;
 int businessSize = 0;
+float totalWaitingTime = 0;
+float businessWaitingTime = 0;
+float economyWaitingTime = 0;
+
 
 
 int main(int argc, char *argv[]){
