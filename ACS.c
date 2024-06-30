@@ -20,7 +20,6 @@ double getCurrentSimulationTime();
 
 struct Queue *economyQueue;
 struct Queue *businessQueue;
-struct timeval start_time;
 
 pthread_mutex_t businessQueueMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t economyQueueMutex = PTHREAD_MUTEX_INITIALIZER;
