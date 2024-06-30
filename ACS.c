@@ -107,11 +107,11 @@ int main(int argc, char *argv[]){
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
-    printf("here\n");
-    for(int l = 0; l < CLERKS-1; l++){
+
+    for(int l = 0; l < 4; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
-printf("here2\n");
+
     double total_simulation_time = getCurrentSimulationTime();
     printf("Simulation took %.2f seconds\n", total_simulation_time);
     printf("The average waiting time for all customers in the system is: %.2f seconds. \n", totalWaitingTime / size);
