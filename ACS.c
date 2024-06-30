@@ -104,7 +104,7 @@ int main(int argc, char *argv[]){
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
-    for(int l = 0; l < CLERKS; l++){
+    for(int l = 0; l <= CLERKS; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
 
