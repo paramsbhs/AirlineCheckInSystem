@@ -14,6 +14,7 @@ double getCurrentSimulationTime();
 struct Queue *economyQueue;
 struct Queue *businessQueue;
 struct timeval start_time;
+struct Clerk clerks[CLERKS];
 
 
 #define QUEUE 2
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]){
 
     usleep(100000); // 0.1 second delay
     gettimeofday(&start_time, NULL);
-    
+
     economyQueue = createQueue(); //Initialize the economy Queue
     businessQueue = createQueue(); //Initialize the business Queue
 
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]){
     for(i = 0; i < CLERKS; i++){
         int* clerk_id = (int*)malloc(sizeof(int)); //allocate memory for the clerk id
         *clerk_id = i+1; //set the clerk id to i
-        if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, clerk_id))){ //Create the clerk threads, Sample Code (pthread_create.c)
+        if((rc = pthread_create(&clerkThreads[i], &clerkattr, clerkThread, &clerks[i]))){ //Create the clerk threads, Sample Code (pthread_create.c)
             fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
             return EXIT_FAILURE;
         }
@@ -187,6 +188,11 @@ void* customerThread(void* param) {
 void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
     free(param);
+    usleep(100000); 
+    pthread_mutex_lock(&clerk->mutex);
+    clerk->is_available = 1;
+    pthread_cond_signal(&clerk->available);
+    pthread_mutex_unlock(&clerk->mutex);
 
     while (1) {
         struct Customer customer;
@@ -211,7 +217,6 @@ void* clerkThread(void* param) {
 
         double start_time = getCurrentSimulationTime();
         double wait_time = start_time - (customer.arrival_time / 10.0);
-        printf("Debug: arrival_time=%.2f, wait_time=%.2f\n", customer.arrival_time / 10.0, wait_time);
         printf("Customer %d (%s) spent %.2f seconds waiting before being served\n", customer.user_id, 
                 isBusinessCustomer ? "Business" : "Economy", wait_time);
         printf("Clerk %d starts taking care of customer %d\n", clerk_id, customer.user_id);
