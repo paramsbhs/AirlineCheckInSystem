@@ -104,6 +104,9 @@ int main(int argc, char *argv[]){
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
+    for(int l = 0; l < CLERKS; l++){
+        pthread_join(clerkThreads[l], NULL); //Join the clerk threads
+    }
 
     pthread_mutex_destroy(&businessQueueMutex); //Destroy the business queue mutex
     pthread_mutex_destroy(&economyQueueMutex); //Destroy the economy queue mutex
@@ -191,7 +194,7 @@ void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
     free(param);
     usleep(100000); 
-    while (TRUE) {
+    while (1) {
         struct Customer customer;
         int isBusinessCustomer = 0;
 
