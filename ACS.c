@@ -214,13 +214,13 @@ int clerk_id = *(int*)param;
         struct Customer customer;
         int queue_id;
 
-        if (businessQueue->size > 0) {
+        if (businessSize > 0) {
             customer = dequeue(businessQueue);
             businessSize--;
             queue_id = 1;
             printf("Clerk ID %1d starts serving a business customer: customer ID %2d. \n", clerk_id, customer.user_id);
             printf("A customer leaves a queue: the queue ID 1, and length of the queue %2d. \n", businessSize);
-        } else if (economyQueue->size > 0) {
+        } else if (economySize > 0) {
             customer = dequeue(economyQueue);
             economySize--;
             queue_id = 0;
