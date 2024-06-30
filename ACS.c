@@ -205,7 +205,7 @@ void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
     free(param);
     usleep(100000); 
-    while (1) {
+    while (!isEmpty(economyQueue) || !isEmpty(businessQueue)) {
         struct Customer customer;
         int isBusinessCustomer = 0;
 
