@@ -212,7 +212,8 @@ void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
     free(param);
     usleep(100000); 
-    while (1) {
+    boolean notDone = TRUE;
+    while (notDone) {
         struct Customer customer;
         int isBusinessCustomer = 0;
 
@@ -243,6 +244,7 @@ void* clerkThread(void* param) {
         usleep(customer.service_time * 100000); // Service time in tenths of a second
         double end_time = getCurrentSimulationTime();
         printf("Clerk %d finishes taking care of customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
+        notDone = FALSE;
     }
     pthread_exit(NULL);
 }
