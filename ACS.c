@@ -118,11 +118,11 @@ void inputFile(const char *filename, struct Queue *economyQueue, struct Queue *b
     for (int i = 0; i < *size; i++) { //store the data from the file in the queue
         struct Customer customer;
         fscanf(file, "%d:%d,%d,%d\n", &customer.user_id, &customer.class_type, &customer.arrival_time, &customer.service_time); //scan the data from the file
-        if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
-            enqueue(businessQueue, customer);
-        }else{
-            enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
-        }
+        // if(customer.class_type == 1){ //if the customer is a business class customer, add it to the business queue
+        //     enqueue(businessQueue, customer);
+        // }else{
+        //     enqueue(economyQueue, customer); //if the customer is an economy class customer, add it to the economy queue
+        // }
     }
     fclose(file);
 }
