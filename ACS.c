@@ -184,35 +184,39 @@ void* customerThread(void* param) {
 */
 void* clerkThread(void* param) {
     int clerk_id = *((int*)param);
-    printf("Clerk %d started working!\n", clerk_id); //print the clerk id (1-5)
     free(param);
-    
 
-    while (TRUE) {
-        pthread_mutex_lock(&businessQueueMutex);
-        pthread_mutex_lock(&economyQueueMutex);
-        while (isEmpty(businessQueue) && isEmpty(economyQueue)) {
-            pthread_cond_wait(&clerkAvailable, &businessQueueMutex);
-            pthread_cond_wait(&clerkAvailable, &economyQueueMutex);
-        }
-
+    while (1) {
         struct Customer customer;
-        if (!isEmpty(businessQueue)) {
+        int isBusinessCustomer = 0;
+
+        pthread_mutex_lock(&businessQueueMutex);
+        if (!isQueueEmpty(businessQueue)) {
             customer = dequeue(businessQueue);
-            businessSize--;
+            isBusinessCustomer = 1;
         } else {
-            customer = dequeue(economyQueue);
-            economySize--;
+            pthread_mutex_unlock(&businessQueueMutex);
+            pthread_mutex_lock(&economyQueueMutex);
+            if (!isQueueEmpty(economyQueue)) {
+                customer = dequeue(economyQueue);
+            } else {
+                pthread_mutex_unlock(&economyQueueMutex);
+                pthread_mutex_unlock(&businessQueueMutex);
+                continue;
+            }
+            pthread_mutex_unlock(&economyQueueMutex);
         }
-        pthread_mutex_unlock(&economyQueueMutex);
         pthread_mutex_unlock(&businessQueueMutex);
 
         double start_time = getCurrentSimulationTime();
-        printf("Clerk %d starts serving customer %d at time %.2f\n", clerk_id, customer.user_id, start_time);
+        printf("Clerk %d starts taking care of customer %d\n", clerk_id, customer.user_id);
         usleep(customer.service_time * 100000);
         double end_time = getCurrentSimulationTime();
-        printf("Clerk %d finishes serving customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
-        pthread_cond_signal(&customerServed);
+        printf("Clerk %d finishes taking care of customer %d at time %.2f\n", clerk_id, customer.user_id, end_time);
+
+        double wait_time = start_time - customer.arrival_time / 10.0;
+        printf("Customer %d (%s) spent %.2f seconds waiting before being served\n", customer.user_id, 
+                isBusinessCustomer ? "Business" : "Economy", wait_time);
     }
     pthread_exit(NULL);
 }
