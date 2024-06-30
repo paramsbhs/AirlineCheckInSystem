@@ -107,9 +107,16 @@ int main(int argc, char *argv[]){
     for(int k = 0; k < size; k++){
         pthread_join(customerThreads[k], NULL); //Join the customer threads
     }
+    printf("here\n");
     for(int l = 0; l < CLERKS-1; l++){
         pthread_join(clerkThreads[l], NULL); //Join the clerk threads
     }
+printf("here2\n");
+    double total_simulation_time = getCurrentSimulationTime();
+    printf("Simulation took %.2f seconds\n", total_simulation_time);
+    printf("The average waiting time for all customers in the system is: %.2f seconds. \n", totalWaitingTime / size);
+    printf("The average waiting time for all business-class customers is: %.2f seconds. \n", businessWaitingTime / businessSize);
+    printf("The average waiting time for all economy-class customers is: %.2f seconds. \n", economyWaitingTime / economySize);
 
     pthread_attr_destroy(&customerattr);
     pthread_attr_destroy(&clerkattr);
@@ -121,12 +128,6 @@ int main(int argc, char *argv[]){
 
     free(economyQueue); //Free the economy queue
     free(businessQueue); //Free the business queue
-
-    double total_simulation_time = getCurrentSimulationTime();
-    printf("Simulation took %.2f seconds\n", total_simulation_time);
-    printf("The average waiting time for all customers in the system is: %.2f seconds. \n", totalWaitingTime / size);
-    printf("The average waiting time for all business-class customers is: %.2f seconds. \n", businessWaitingTime / businessSize);
-    printf("The average waiting time for all economy-class customers is: %.2f seconds. \n", economyWaitingTime / economySize);
 
     return 0;
 }
