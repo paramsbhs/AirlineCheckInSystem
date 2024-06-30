@@ -114,9 +114,9 @@ int main(int argc, char *argv[]){
 
     double total_simulation_time = getCurrentSimulationTime();
     printf("Simulation took %.2f seconds\n", total_simulation_time);
-    printf("The average waiting time for all customers in the system is: %.2f seconds. \n", (businessWaitingTime + economyWaitingTime) / size);
-    printf("The average waiting time for all business-class customers is: %.2f seconds. \n", businessWaitingTime / businessSize);
-    printf("The average waiting time for all economy-class customers is: %.2f seconds. \n", economyWaitingTime / economySize);
+    printf("The average waiting time for all customers in the system is: %.2f seconds. \n", (businessWaitingTime + economyWaitingTime) / 8.0);
+    printf("The average waiting time for all business-class customers is: %.2f seconds. \n", businessWaitingTime / 3.0);
+    printf("The average waiting time for all economy-class customers is: %.2f seconds. \n", economyWaitingTime / 5.0);
 
     pthread_attr_destroy(&customerattr);
     pthread_attr_destroy(&clerkattr);
